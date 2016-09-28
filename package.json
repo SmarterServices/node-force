@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "config": "^1.21.0",
     "jsforce": "^1.7.0",
     "mz": "^2.4.0",
     "pg": "^6.1.0",
