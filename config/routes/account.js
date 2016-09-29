@@ -37,5 +37,35 @@ module.exports = [{
         .description('Payload for account')
     }
   }
+}, {
+  method: 'GET',
+  path: '/v1/applications/{applicationId}/accounts',
+  config: {
+    handler: function (request, reply) {
+
+      var opts = {
+        applicationId: request.params.applicationId,
+        accountData: request.payload
+      };
+
+      AccountHandler.listAccounts(opts, function (err, r) {
+        if (err) {
+          reply(err);
+        } else {
+          reply(r);
+        }
+      })
+    },
+    tags: ['api'],
+    description: 'Syncs the provided models from salesforce',
+    validate: {
+      params: {
+        applicationId: Joi
+          .string()
+          .required()
+          .description('Application Id')
+      }
+    }
+  }
 }];
 
