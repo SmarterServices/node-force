@@ -1,0 +1,14 @@
+{
+  "database": {
+    "dialect": "postgres",
+    "host": "ec2-54-243-126-40.compute-1.amazonaws.com",
+    "databaseName": "dbvtkke530tgv6",
+    "userName": "gspomrarrtsvkg",
+    "password": "ZQUTuO3HoqylWZVjXG_O_lovwj",
+    "schema": "salesforcedev"
+  },
+  "salesforce": {
+    "userName": "tanzir@enosisbd.com",
+    "password": "Enosis123urVm73Rsyd0KR5TaFq1iqRj8q"
+  }
+}

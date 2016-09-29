@@ -4,9 +4,9 @@ var Hapi = require('hapi'),
     HapiSwagger     = require('hapi-swagger'),
     Pack            = require('./package');
 var config = require('./config/server_settings');
-var routes = require('./config/routes');
+var routes = require('./config/routes/routes');
 
-GLOBAL.server = new Hapi.Server();
+global.server = new Hapi.Server();
 
 server.connection(config);
 
