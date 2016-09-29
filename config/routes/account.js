@@ -67,5 +67,79 @@ module.exports = [{
       }
     }
   }
+}, {
+  method: 'PUT',
+  path: '/v1/applications/{applicationId}/accounts/{accountId}',
+  config: {
+    handler: function (request, reply) {
+
+      var opts = {
+        applicationId: request.params.applicationId,
+        accountId: request.params.accountId,
+        accountData: request.payload
+      };
+
+      AccountHandler.updateAccount(opts, function (err, r) {
+        if (err) {
+          reply(err);
+        } else {
+          reply(r);
+        }
+      })
+    },
+    tags: ['api'],
+    description: 'Syncs the provided models from salesforce',
+    validate: {
+      params: {
+        applicationId: Joi
+          .string()
+          .required()
+          .description('Application Id'),
+        accountId: Joi
+          .number()
+          .integer()
+          .required()
+          .description('Application Id')
+      },
+      payload: Joi
+        .object()
+        .description('Data to update the account with')
+    }
+  }
+}, {
+  method: 'DELETE',
+  path: '/v1/applications/{applicationId}/accounts/{accountId}',
+  config: {
+    handler: function (request, reply) {
+
+      var opts = {
+        applicationId: request.params.applicationId,
+        accountId: request.params.accountId
+      };
+
+      AccountHandler.deleteAccount(opts, function (err, r) {
+        if (err) {
+          reply(err);
+        } else {
+          reply(r);
+        }
+      })
+    },
+    tags: ['api'],
+    description: 'Syncs the provided models from salesforce',
+    validate: {
+      params: {
+        applicationId: Joi
+          .string()
+          .required()
+          .description('Application Id'),
+        accountId: Joi
+          .number()
+          .integer()
+          .required()
+          .description('Application Id')
+      }
+    }
+  }
 }];
 
