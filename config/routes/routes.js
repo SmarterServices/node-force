@@ -1,13 +1,18 @@
-var handler = require('./../../lib/handler');
-var HerokuConnectHandler = require('./../../lib/handlers/heroku-connect');
 var Joi = require('joi');
 
-module.exports = [{
+var AccountRoutes = require('./account');
+
+var handler = require('./../../lib/handler');
+var HerokuConnectHandler = require('./../../lib/handlers/heroku-connect');
+
+
+var routes = [{
   method: 'GET',
   path: '/v1',
   config: {
     handler: function (request, reply) {
-      opts = {};
+      var opts = {};
+
       handler.example(opts, function (err, r) {
         if (err) {
           reply(err);
@@ -23,10 +28,11 @@ module.exports = [{
   path: '/v1/applications/{applicationId}/sync',
   config: {
     handler: function (request, reply) {
-      opts = {
+      var opts = {
         applicationId: request.params.applicationId,
         models: request.payload.models
       };
+
       HerokuConnectHandler.syncModels(opts, function (err, r) {
         if (err) {
           reply(err);
@@ -55,3 +61,8 @@ module.exports = [{
     }
   }
 }];
+
+routes.push(...AccountRoutes);
+
+module.exports = routes;
+
