@@ -2,6 +2,7 @@
 
 var Joi = require('joi');
 
+var Boom = require('boom');
 var AccountHandler = require('./../../lib/handlers/account');
 
 module.exports = [{
@@ -17,7 +18,7 @@ module.exports = [{
 
       AccountHandler.addAccount(opts, function (err, r) {
         if (err) {
-          reply(err);
+          reply(Boom.badRequest(err)); //TODO -- Needs a proper implementation
         } else {
           reply(r);
         }
@@ -50,7 +51,7 @@ module.exports = [{
 
       AccountHandler.listAccounts(opts, function (err, r) {
         if (err) {
-          reply(err);
+          reply(Boom.badRequest(err)); //TODO -- Needs a proper implementation
         } else {
           reply(r);
         }
@@ -81,7 +82,7 @@ module.exports = [{
 
       AccountHandler.updateAccount(opts, function (err, r) {
         if (err) {
-          reply(err);
+          reply(Boom.badRequest(err)); //TODO -- Needs a proper implementation
         } else {
           reply(r);
         }
@@ -119,7 +120,7 @@ module.exports = [{
 
       AccountHandler.deleteAccount(opts, function (err, r) {
         if (err) {
-          reply(err);
+          reply(Boom.badRequest(err)); //TODO -- Needs a proper implementation
         } else {
           reply(r);
         }
