@@ -61,6 +61,33 @@ var routes = [{
       }
     }
   }
+}, {
+  method: 'PUT',
+  path: '/v1/applications/{applicationId}/syncAll',
+  config: {
+    handler: function (request, reply) {
+      var opts = {
+        applicationId: request.params.applicationId
+      };
+
+      HerokuConnectHandler.syncAllModels(opts, function (err, r) {
+        if (err) {
+          reply(Boom.badRequest(err));
+        } else {
+          reply(r);
+        }
+      })
+    },
+    tags: ['api'],
+    description: 'Syncs the provided models from salesforce',
+    validate: {
+      params: {
+        applicationId: Joi.string()
+          .required()
+          .description('Application Id')
+      }
+    }
+  }
 }];
 
 routes.push(...AccountRoutes);
