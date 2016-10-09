@@ -25,7 +25,7 @@ module.exports = [{
       })
     },
     tags: ['api'],
-    description: 'Syncs the provided models from salesforce',
+    description: 'Add new account data',
     validate: {
       params: {
         applicationId: Joi
@@ -46,7 +46,6 @@ module.exports = [{
 
       var opts = {
         applicationId: request.params.applicationId,
-        accountData: request.payload
       };
 
       AccountHandler.listAccounts(opts, function (err, r) {
@@ -58,7 +57,7 @@ module.exports = [{
       })
     },
     tags: ['api'],
-    description: 'Syncs the provided models from salesforce',
+    description: 'Get list of all account data',
     validate: {
       params: {
         applicationId: Joi
@@ -68,7 +67,42 @@ module.exports = [{
       }
     }
   }
-}, {
+},{
+  method: 'GET',
+  path: '/v1/applications/{applicationId}/accounts/{accountId}',
+  config: {
+    handler: function (request, reply) {
+
+      var opts = {
+        applicationId: request.params.applicationId,
+        accountId: request.params.accountId
+      };
+
+      AccountHandler.getAccount(opts, function (err, r) {
+        if (err) {
+          reply(Boom.badRequest(err)); //TODO -- Needs a proper implementation
+        } else {
+          reply(r);
+        }
+      })
+    },
+    tags: ['api'],
+    description: 'Get account data by account id',
+    validate: {
+      params: {
+        applicationId: Joi
+          .string()
+          .required()
+          .description('Application Id'),
+        accountId: Joi
+          .number()
+          .integer()
+          .required()
+          .description('Account Id')
+      }
+    }
+  }
+},{
   method: 'PUT',
   path: '/v1/applications/{applicationId}/accounts/{accountId}',
   config: {
@@ -89,7 +123,7 @@ module.exports = [{
       })
     },
     tags: ['api'],
-    description: 'Syncs the provided models from salesforce',
+    description: 'Update account data by account id',
     validate: {
       params: {
         applicationId: Joi
@@ -127,7 +161,7 @@ module.exports = [{
       })
     },
     tags: ['api'],
-    description: 'Syncs the provided models from salesforce',
+    description: 'Delete accoutn data by account id',
     validate: {
       params: {
         applicationId: Joi
