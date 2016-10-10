@@ -6,6 +6,7 @@
   "license": "MIT",
   "main": "server.js",
   "scripts": {
+    "preinstall": "npm install shelljs & node ./pre-install.js",
     "test": "gulp tests",
     "start": "node server.js"
   },
