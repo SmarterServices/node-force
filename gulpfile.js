@@ -9,6 +9,8 @@ var gulp = require('gulp'),
     yuidoc = require('gulp-yuidoc'),
     jshint = require('gulp-jshint');
 
+var Utils = require('./lib/helpers/utils');
+
 // Reference our app files for easy reference in out gulp tasks
 var paths = {
     server : {
@@ -87,4 +89,15 @@ gulp.task('jslint', function (cb) {
         .on('finish', function () {
             cb().pipe(process.exit());
         });
+});
+
+gulp.task('generate', function (cb) {
+  Utils
+    .generateEndpoints()
+    .then(function () {
+      require('./server');
+    })
+    .catch(function (ex) {
+      console.error(ex.stack);
+    });
 });

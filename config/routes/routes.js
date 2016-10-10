@@ -1,7 +1,6 @@
 var Joi = require('joi');
 
 var Boom = require('boom');
-var AccountRoutes = require('./account');
 
 var handler = require('./../../lib/handler');
 var HerokuConnectHandler = require('./../../lib/handlers/heroku-connect');
@@ -90,7 +89,6 @@ var routes = [{
   }
 }];
 
-routes.push(...AccountRoutes);
 
 module.exports = routes;
 

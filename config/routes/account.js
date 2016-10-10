@@ -13,7 +13,7 @@ module.exports = [{
 
       var opts = {
         applicationId: request.params.applicationId,
-        accountData: request.payload
+        payload: request.payload
       };
 
       AccountHandler.addAccount(opts, function (err, r) {
@@ -45,8 +45,7 @@ module.exports = [{
     handler: function (request, reply) {
 
       var opts = {
-        applicationId: request.params.applicationId,
-        accountData: request.payload
+        applicationId: request.params.applicationId
       };
 
       AccountHandler.listAccounts(opts, function (err, r) {
@@ -77,7 +76,7 @@ module.exports = [{
       var opts = {
         applicationId: request.params.applicationId,
         accountId: request.params.accountId,
-        accountData: request.payload
+        payload: request.payload
       };
 
       AccountHandler.updateAccount(opts, function (err, r) {
