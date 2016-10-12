@@ -21,9 +21,6 @@
     "jsforce": "^1.7.0",
     "lodash": "^4.16.4",
     "moment": "2.10.6",
-    "pg": "^6.1.0",
-    "pg-native": "^1.10.0",
-    "sequelize": "^3.24.3",
     "vision": "^3.0.0"
   },
   "devDependencies": {
