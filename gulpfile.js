@@ -95,7 +95,8 @@ gulp.task('generate', function (cb) {
   Utils
     .generateEndpoints()
     .then(function () {
-      require('./server');
+      //require('./server');
+      console.log('Route creation with functionality is successful. Please restart server to make the changes into effect!')
     })
     .catch(function (ex) {
       console.error(ex.stack);
