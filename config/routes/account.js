@@ -45,7 +45,9 @@ module.exports = [{
     handler: function (request, reply) {
 
       var opts = {
-        applicationId: request.params.applicationId
+        applicationId: request.params.applicationId,
+        startKey: request.query.startKey,
+        limit: request.query.limit
       };
 
       AccountHandler.listAccounts(opts, function (err, r) {
@@ -64,6 +66,15 @@ module.exports = [{
           .string()
           .required()
           .description('Application Id')
+      },
+      query: {
+        startKey: Joi
+          .any()
+          .description('Id to get next portion of query data. For 1st query should pass as empty'),
+        limit: Joi
+          .number()
+          .integer()
+          .description('Number of items to return')
       }
     }
   }

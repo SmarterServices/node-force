@@ -5,7 +5,8 @@
     "databaseName": "dbvtkke530tgv6",
     "userName": "gspomrarrtsvkg",
     "password": "ZQUTuO3HoqylWZVjXG_O_lovwj",
-    "schema": "salesforcedev"
+    "schema": "salesforcedev",
+    "sortKey": "Id"
   },
   "salesforce": {
     "userName": "tanzir@enosisbd.com",
