@@ -1,6 +1,10 @@
+
 'use strict';
 
 var Joi = require('joi');
+
+var schemaProvider = require('./schema/schema-provider');
+var accountSchema = schemaProvider.schema['account'];
 
 var Boom = require('boom');
 var AccountHandler = require('./../../lib/handlers/account');
@@ -13,32 +17,37 @@ module.exports = [{
 
       var opts = {
         applicationId: request.params.applicationId,
+
         payload: request.payload
       };
 
       AccountHandler.addAccount(opts, function (err, r) {
         if (err) {
-          reply(Boom.badRequest(err)); //TODO -- Needs a proper implementation
+          reply(Boom.badRequest(err));
         } else {
-          reply(r);
+          reply.view('partials/account', {account: r});
         }
       })
     },
-    tags: ['api'],
-    description: 'Add new account data',
+    tags: ['api', 'account'],
+    description: 'Add account',
     validate: {
       params: {
+
         applicationId: Joi
           .string()
           .required()
           .description('Application Id')
       },
-      payload: Joi
-        .object()
-        .description('Payload for account')
+      query: {
+
+      }
+,
+      payload: accountSchema
     }
   }
-}, {
+},
+{
   method: 'GET',
   path: '/v1/applications/{applicationId}/accounts',
   config: {
@@ -47,21 +56,23 @@ module.exports = [{
       var opts = {
         applicationId: request.params.applicationId,
         startKey: request.query.startKey,
-        limit: request.query.limit
+        limit: request.query.limit,
+        payload: request.payload
       };
 
       AccountHandler.listAccounts(opts, function (err, r) {
         if (err) {
-          reply(Boom.badRequest(err)); //TODO -- Needs a proper implementation
+          reply(Boom.badRequest(err));
         } else {
-          reply(r);
+          reply.view('accountCollection', {account: r});
         }
       })
     },
-    tags: ['api'],
-    description: 'Get list of all account data',
+    tags: ['api', 'account'],
+    description: 'List account',
     validate: {
       params: {
+
         applicationId: Joi
           .string()
           .required()
@@ -76,9 +87,11 @@ module.exports = [{
           .integer()
           .description('Number of items to return')
       }
+
     }
   }
-},{
+},
+{
   method: 'GET',
   path: '/v1/applications/{applicationId}/accounts/{accountId}',
   config: {
@@ -86,34 +99,42 @@ module.exports = [{
 
       var opts = {
         applicationId: request.params.applicationId,
-        accountId: request.params.accountId
+        accountId: request.params.accountId,
+
+        payload: request.payload
       };
 
       AccountHandler.getAccount(opts, function (err, r) {
         if (err) {
-          reply(Boom.badRequest(err)); //TODO -- Needs a proper implementation
+          reply(Boom.badRequest(err));
         } else {
-          reply(r);
+          reply.view('partials/account', {account: r});
         }
       })
     },
-    tags: ['api'],
-    description: 'Get account data by account id',
+    tags: ['api', 'account'],
+    description: 'Get account',
     validate: {
       params: {
+
         applicationId: Joi
           .string()
           .required()
           .description('Application Id'),
+
         accountId: Joi
-          .number()
-          .integer()
+          .string()
           .required()
           .description('Account Id')
+      },
+      query: {
+
       }
+
     }
   }
-},{
+},
+{
   method: 'PUT',
   path: '/v1/applications/{applicationId}/accounts/{accountId}',
   config: {
@@ -122,37 +143,42 @@ module.exports = [{
       var opts = {
         applicationId: request.params.applicationId,
         accountId: request.params.accountId,
+
         payload: request.payload
       };
 
       AccountHandler.updateAccount(opts, function (err, r) {
         if (err) {
-          reply(Boom.badRequest(err)); //TODO -- Needs a proper implementation
+          reply(Boom.badRequest(err));
         } else {
-          reply(r);
+          reply.view('partials/account', {account: r});
         }
       })
     },
-    tags: ['api'],
-    description: 'Update account data by account id',
+    tags: ['api', 'account'],
+    description: 'Update account',
     validate: {
       params: {
+
         applicationId: Joi
           .string()
           .required()
           .description('Application Id'),
+
         accountId: Joi
-          .number()
-          .integer()
+          .string()
           .required()
-          .description('Application Id')
+          .description('Account Id')
       },
-      payload: Joi
-        .object()
-        .description('Data to update the account with')
+      query: {
+
+      }
+,
+      payload: accountSchema
     }
   }
-}, {
+},
+{
   method: 'DELETE',
   path: '/v1/applications/{applicationId}/accounts/{accountId}',
   config: {
@@ -160,32 +186,38 @@ module.exports = [{
 
       var opts = {
         applicationId: request.params.applicationId,
-        accountId: request.params.accountId
+        accountId: request.params.accountId,
+
+        payload: request.payload
       };
 
       AccountHandler.deleteAccount(opts, function (err, r) {
         if (err) {
-          reply(Boom.badRequest(err)); //TODO -- Needs a proper implementation
+          reply(Boom.badRequest(err));
         } else {
-          reply(r);
+          reply.view('partials/account', {account: r});
         }
       })
     },
-    tags: ['api'],
-    description: 'Delete accoutn data by account id',
+    tags: ['api', 'account'],
+    description: 'Delete account',
     validate: {
       params: {
+
         applicationId: Joi
           .string()
           .required()
           .description('Application Id'),
+
         accountId: Joi
-          .number()
-          .integer()
+          .string()
           .required()
-          .description('Application Id')
+          .description('Account Id')
+      },
+      query: {
+
       }
+
     }
   }
 }];
-

@@ -3,11 +3,13 @@
     {
       "modelName": "account",
       "path": "/applications/{applicationId}/accounts",
-      "endPointTypes": ["add", "list", "get", "update", "delete"]
-    }, {
-      "modelName": "contact",
-      "path": "/applications/{applicationId}/contacts",
-      "endPointTypes": ["add", "list", "get", "update", "delete"]
+      "endPointTypes": [
+        "add",
+        "list",
+        "get",
+        "update",
+        "delete"
+      ]
     }
   ]
 }
