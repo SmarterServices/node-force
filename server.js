@@ -3,10 +3,12 @@ var Hapi = require('hapi'),
   Vision = require('vision'),
   HapiSwagger = require('hapi-swagger'),
   HapiJsonView = require('@ideapod/hapi-json-view'),
+  GraphQL = require('hapi-graphql'),
   Pack = require('./package');
 var config = require('./config/server_settings');
 var Fs = require('fs');
 var Path = require('path');
+var GraphQLSchema = require('./lib/models/graphql-schema');
 
 global.server = new Hapi.Server();
 
@@ -29,7 +31,9 @@ routeFiles.forEach(function forEachRouteFile(routeFile) {
 });
 
 var swaggerOptions = {
-  apiVersion: Pack.version
+  info: {
+    version: Pack.version
+  }
 };
 server.register([
   Inert,
@@ -37,6 +41,18 @@ server.register([
   {
     register: HapiSwagger,
     options: swaggerOptions
+  }, {
+    register: GraphQL,
+    options: {
+      query: () => ({
+        graphiql: true,
+        schema: GraphQLSchema
+      }),
+      route: {
+        path: '/graphql',
+        config: {}
+      }
+    }
   }], function (err) {
   server.start(function () {
     server.views({
