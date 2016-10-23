@@ -64,7 +64,12 @@ module.exports = [{
         if (err) {
           reply(Boom.badRequest(err));
         } else {
-          reply.view('accountCollection', {account: r});
+          reply.view('accountCollection',
+          {
+            account: r,
+            endpoint: request.server.info.uri +
+              request.path
+          });
         }
       })
     },
