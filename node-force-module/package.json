@@ -7,5 +7,9 @@
     "test": "gulp test"
   },
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "lodash": "^4.16.4",
+    "mkdirp": "^0.5.1"
+  }
 }

@@ -1,0 +1,56 @@
+{
+  "joi": {
+    "boolean": "boolean()",
+    "id": "string()",
+    "reference": "string()",
+    "string": "string()",
+    "picklist": "string()",
+    "textarea": "string()",
+    "double": "number()",
+    "address": "string()",
+    "phone": "string()",
+    "url": "string()",
+    "currency": "number()",
+    "int": "number()\n    .integer()",
+    "datetime": "date()",
+    "date": "date()"
+  },
+  "sequelize": {
+    "boolean": "Sequelize.BOOLEAN",
+    "id": "Sequelize.UUID",
+    "reference": "Sequelize.STRING",
+    "string": "Sequelize.STRING",
+    "picklist": "Sequelize.STRING",
+    "textarea": "Sequelize.TEXT",
+    "double": "Sequelize.DOUBLE",
+    "address": "Sequelize.STRING",
+    "phone": "Sequelize.STRING",
+    "url": "Sequelize.STRING",
+    "currency": "Sequelize.DOUBLE",
+    "int": "Sequelize.INTEGER",
+    "datetime": "Sequelize.DATE",
+    "date": "Sequelize.DATEONLY"
+  },
+  "salesforceLogic": [
+    {
+      "ruleValue": "<>",
+      "jsValue": "!= "
+    },
+    {
+      "ruleValue": "[^!]={1,2}",
+      "jsValue": " ==="
+    },
+    {
+      "ruleValue": "[^&]&[^&]",
+      "jsValue": "+"
+    },
+    {
+      "ruleValue": "ABS\\(",
+      "jsValue": "Math.abs("
+    },
+    {
+      "ruleValue": "FLOOR\\(",
+      "jsValue": "Math.floor("
+    }
+  ]
+}
