@@ -9,6 +9,9 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "config": "^1.21.0",
+    "joi": "^9.2.0",
+    "jsforce": "^1.7.0",
     "lodash": "^4.16.4",
     "mkdirp": "^0.5.1"
   }

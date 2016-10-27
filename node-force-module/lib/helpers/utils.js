@@ -1,5 +1,7 @@
 'use strict';
 
+var Os = require('os');
+var _ = require('lodash');
 var Fs = require('fs');
 var Path = require('path');
 var Mkdirp = require('mkdirp');
@@ -108,6 +110,38 @@ var utils = {
         });
     });
 
+  },
+
+  /**
+   * Parses a API path
+   * @param path {string}
+   * @return {{paramAssignments: string, validations: string}}
+   */
+  parseApiPath: function getParams(path) {
+    var validations = [];
+    var paramPattern = /\{(.+?)}/g;
+    var params = [];
+    var paramData,
+      paramName,
+      paramNameStartCase;
+
+
+    while (paramData = paramPattern.exec(path)) {
+      paramName = paramData[1];
+      paramNameStartCase = _.startCase(paramName);
+      params.push(`        ${paramName}: request.params.${paramName}`);
+
+      validations.push(`
+        ${paramName}: Joi
+          .string()
+          .required()
+          .description('${paramNameStartCase}')`);
+    }
+
+    return {
+      paramAssignments: params.join(',' + Os.EOL),
+      validations: '{' + validations.join(',' + Os.EOL) + '}'
+    };
   }
 };
 

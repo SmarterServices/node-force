@@ -52,5 +52,12 @@
       "ruleValue": "FLOOR\\(",
       "jsValue": "Math.floor("
     }
-  ]
+  ],
+  "endpointMethod": {
+    "list": "GET",
+    "get": "GET",
+    "add": "POST",
+    "update": "PUT",
+    "delete": "DELETE"
+  }
 }
