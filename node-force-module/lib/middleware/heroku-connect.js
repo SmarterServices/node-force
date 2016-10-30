@@ -28,6 +28,9 @@ var herokuConnect = {
           var mappings = JSON.parse(data).mappings,
             map = {};
 
+          if (!modelName)
+            return resolve(mappings);
+
           mappings.forEach(function forEachMapping(mapping) {
             if (mapping.object_name.toLowerCase() === modelName.toLowerCase()) {
               map = mapping;

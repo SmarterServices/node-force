@@ -37,7 +37,8 @@ var utils = {
   /**
    * Wrapper of fs.writeFile using promise
    * @param path {String}
-   * @param data {String}
+   * @param data {String|Promise} Content of file
+   * or promise that resolves the content
    * @param options {Object}
    * @param rejectOnError {Boolean}
    * @returns {Promise}
@@ -51,15 +52,54 @@ var utils = {
           return reject(err);
         }
 
-        Fs.writeFile(path, data, options, function (err, data) {
-          if (err && rejectOnError) {
-            return reject(err);
-          }
+        //Data can be also a promise that resolves the original data
+        if (data instanceof Promise) {
+          data
+            .then(function (data) {
+              Fs.writeFile(path, data, options, function (err, data) {
+                if (err && rejectOnError) {
+                  return reject(err);
+                }
 
-          resolve(data);
-        });
+                resolve(data);
+              });
+            })
+            .catch(function (ex) {
+              if (err && rejectOnError) {
+                return reject(err);
+              }
+            })
+
+        } else {
+          Fs.writeFile(path, data, options, function (err, data) {
+            if (err && rejectOnError) {
+              return reject(err);
+            }
+
+            resolve(data);
+          });
+        }
       });
 
+    });
+  },
+
+
+  /**
+   * Wrap the core read file method with promise
+   * @param path {String}
+   * @param rejectOnError {Boolean}
+   * @return {Promise}
+   */
+  readFile: function (path, rejectOnError) {
+    return new Promise(function writeFile(resolve, reject) {
+      Fs.readFile(path, function (err, data) {
+        if (err && rejectOnError) {
+          return reject();
+        }
+
+        resolve(data);
+      })
     });
   },
 

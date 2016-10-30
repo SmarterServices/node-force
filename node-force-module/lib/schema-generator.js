@@ -18,17 +18,18 @@ class SchemaGenerator {
 
   /**
    * Schema generator
-   * @param name {String} Name of the model
+   * @param modelName {String} Name of the model
    * @param config {Object}
    * @param config.herokuMapping {Object} Heroku mapping for object
    * @param config.forceObject {Object} Salesforce object for model
    * @param config.salesforceValidation {Object} Validations for salesForce
    * @param config.basePath {String} Root path to the project
    */
-  constructor(name, config) {
+  constructor(modelName, config) {
     var basePath = Path.resolve(config.basePath || './../../');
 
-    this.name = name;
+    this.modelName = modelName;
+    this.name = _.camelCase(this.modelName);
     this.fileName = _.replace(_.startCase(this.name), ' ', '__').toLowerCase();
     this.herokuMapping = config.herokuMapping || {};
     this.forceObject = config.forceObject || {};
@@ -179,8 +180,6 @@ ${joiProperties.join(',' + EOL)}
    * Sequelize validation
    * @returns {string} Formatted sequelize validation file content
    */
-
-
   getSequelizeValidation() {
     var validationLength = this.salesforceValidation.length;
     var variables = this.syncedForceFields.map(field => field.name);
@@ -241,8 +240,8 @@ module.exports = {`;
 var Sequelize = require('sequelize');
 var Config = require('config');
 var dbConfig = Config.database;
-var schema = require('./schema/${this.name}');
-var validation = require('./validation/${this.name}');
+var schema = require('./schema/${this.fileName}');
+var validation = require('./validation/${this.fileName}');
 var sequelize = new Sequelize(dbConfig.databaseName,
   dbConfig.userName, dbConfig.password, {
     host: dbConfig.host,
@@ -256,7 +255,7 @@ var sequelize = new Sequelize(dbConfig.databaseName,
     }
   });
   
-module.exports = sequelize.define('${this.name}', schema, {
+module.exports = sequelize.define('${_.lowerFirst(this.modelName)}', schema, {
   timestamps: false,
   freezeTableName: true,
   validate: (function(){

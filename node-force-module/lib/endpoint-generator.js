@@ -25,6 +25,7 @@ class EndpointGenerator {
   /**
    * Generate endpoint
    * @param opts {Object}
+   * @param opts.basePath {String}
    * @param opts.endpointConfig {Object} Configuration for endpoints
    * @param opts.credentials {Object|string} Path or value of the credential for
    * heroku connect, salesForce and postgresDB
@@ -112,6 +113,7 @@ class EndpointGenerator {
    * @return {string}
    */
   getRoute(routeType) {
+    var methodName = routeType + _.upperFirst(this.name);
     var method = endpointMethodMap[routeType],
       reply = `reply.view('partials/${this.fileName}', {${this.name}: r});`,
       paginationQueryTemplate = '',
@@ -186,7 +188,7 @@ ${paramData.paramAssignments}${paginationQueryOpts},
         payload: request.payload
       };
 
-      ${_.capitalize(this.name)}Handler.${this.methodName}(opts, function (err, r) {
+      ${_.upperFirst(this.name)}Handler.${methodName}(opts, function (err, r) {
         if (err) {
           reply(Boom.badRequest(err));
         } else {
@@ -260,7 +262,7 @@ ${paramData.paramAssignments}${paginationQueryOpts},
 
       //call common DB method with model name to retrieve data
       HerokuData
-        .${endpointType}Data('${this.name}', data)
+        .${endpointType}Data('${_.lowerFirst(this.modelName)}', data)
         .then(function onSuccess(data) {
           resolve(data);
         })
@@ -293,7 +295,7 @@ ${paramData.paramAssignments}${paginationQueryOpts},
 var Joi = require('joi');
 
 var schemaProvider = require('./schema/schema-provider');
-var ${this.name}Schema = schemaProvider.schema['${this.name}'];
+var ${this.name}Schema = schemaProvider.schema['${this.fileName}'];
 
 var Boom = require('boom');
 var ${_.upperFirst(this.name)}Handler = require('./../../lib/handlers/${this.fileName}');
@@ -397,7 +399,7 @@ module.exports = ${this.name}Service;
     count: ${this.name}.results.length
   }}));
 json.set('results', json.array(${this.name}.results, (json, item) => {
-        json.set(json.partial('${this.name}', { ${this.name}: item}));
+        json.set(json.partial('${this.fileName}', { ${this.name}: item}));
 }));
 `
   }
@@ -431,7 +433,7 @@ json.set('results', json.array(${this.name}.results, (json, item) => {
         };
 
 
-        var schema = new SchemaGenerator(_this.name, schemaGeneratorOptions);
+        var schema = new SchemaGenerator(_this.modelName, schemaGeneratorOptions);
 
         //Generate and write the schema to the disk
         return schema.generateSchema()
@@ -449,15 +451,15 @@ json.set('results', json.array(${this.name}.results, (json, item) => {
           path: _this.libPath.services + '/' + _this.fileName + '.js',
           data: _this.getServiceFile()
         }, {
-          path: _this.libPath.templates + '/' + _this.fileName + 'Collections.js',
+          path: _this.libPath.templates + '/' + _this.fileName + 'Collection.js',
           data: _this.getCollectionTemplate()
         }, {
-          path: _this.libPath.templates + '/partials/' + _this.fileName + 'Collections.js',
+          path: _this.libPath.templates + '/partials/' + _this.fileName + '.js',
           data: _this.getPartialTemplate()
         }];
 
         //Write all the endpoint files to the disk
-        return Utils.batchWriteFile(files, {flag: 'wx'})
+        return Utils.batchWriteFile(files, {flag: 'wx'}, false);
       })
 
   }
