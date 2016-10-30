@@ -1,5 +1,8 @@
 'use strict';
 
+var NodeForceModule = require('node-force-module');
+var Config = require('config');
+
 // Require and load our packages
 var gulp = require('gulp'),
   mocha = require('gulp-mocha'),
@@ -87,4 +90,46 @@ gulp.task('jslint', function (cb) {
     .on('finish', function () {
       cb().pipe(process.exit());
     });
+});
+
+
+gulp.task('generate', function (cb) {
+  //Create generator object with current location as root project directory
+  //Config contains all the necessary credentials
+  var generator = new NodeForceModule.Generator(__dirname, Config, 'v1');
+
+  //Generate all the codes needed to get the API working
+  generator
+    .generate()
+    .then(function (data) {
+      console.log(data);
+      cb();
+    })
+    .catch(function (ex) {
+      console.log(ex);
+    });
+
+
+  //For individual endpoint generation use the Endpoint generator method
+  /*  var generatorOptions = {
+   credentials: './../config/default.json',
+   basePath: __dirname,
+   version: "v2",
+   endpointConfig: {
+   "modelName": "account",
+   "path": "/applications/{applicationId}/accounts",
+   "endPointTypes": [
+   "add",
+   "list",
+   "get",
+   "update",
+   "delete"
+   ]
+   }
+   };
+
+   var endpointGenerator = new NodeForceModule
+   .EndpointGenerator(generatorOptions);
+
+   endpoint.generateEndpoints();*/
 });

@@ -3,6 +3,7 @@
 var _ = require('lodash');
 var Path = require('path');
 var Joi = require('joi');
+var Colors = require('colors');
 
 var Utils = require('./helpers/utils');
 var HerokuData = require('./middleware/heroku-connect');
@@ -100,7 +101,12 @@ class Generator {
         _this.generateEndpoints()];
 
 
-      return Promise.all(promises);
+      Promise
+        .all(promises)
+        .then(function () {
+          console.log('Endpoint generation ' + Colors.cyan('completed') + '!');
+          console.log(Colors.bgRed(Colors.black('Please update the credentials in config and run the server!')));
+        });
     });
   }
 
@@ -148,6 +154,7 @@ class Generator {
       data: Utils.readFile(templateFilesPath + '/_pagination-template.js', true)
     }];
 
+    console.log('Generating ' + Colors.cyan('static files') + '!');
     return Utils.batchWriteFile(files, {flag: 'wx'}, false);
 
   }
@@ -183,9 +190,17 @@ class Generator {
             };
             var endpointGenerator = new EndpointGenerator(opts);
 
+            console.log('Generating endpoint for ' + Colors.cyan(objectName) + '!');
             promises.push(endpointGenerator.generateEndpoints());
 
-            return Promise.all(promises);
+            Promise
+              .all(promises)
+              .then(function () {
+                resolve();
+              })
+              .catch(function (ex) {
+                reject(ex);
+              })
           });
         })
     });
