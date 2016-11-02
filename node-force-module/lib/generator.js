@@ -4,6 +4,7 @@ var _ = require('lodash');
 var Path = require('path');
 var Joi = require('joi');
 var Colors = require('colors');
+var Pluralize = require('pluralize');
 
 var Utils = require('./helpers/utils');
 var HerokuData = require('./middleware/heroku-connect');
@@ -15,13 +16,14 @@ class Generator {
    * @param path {String} Path to the root project directory
    * @param credentials {Object|string} Path or value of the credential for
    * heroku connect, salesForce and postgresDB
-   * @param version {String} Version of API default is v1
+   * @param version {String|null} Version of API default is v1
    */
   constructor(path, credentials, version) {
     var basePath = Path.resolve(path || './../..');
 
     this.credentials = credentials;
     this.apiVersion = version || 'v1';
+    this.modelMapping = {};
 
     this.libPath = {
       base: basePath,
@@ -66,16 +68,16 @@ class Generator {
             })
       })
       .required();
-    var tempPath;
+    var credentialPath;
 
     //Credentials are needed to make api calls
     if (this.credentials) {
 
       //When path to the credential is provided instead of the credential
       if (typeof  this.credentials === 'string') {
-        tempPath = Path.resolve(this.libPath.base + '/' + this.credentials);
+        credentialPath = Path.resolve(this.libPath.base + '/' + this.credentials);
 
-        this.credentials = require(tempPath);
+        this.credentials = require(credentialPath);
       }
 
       //If the required fields are not found in the credentials
@@ -91,12 +93,25 @@ class Generator {
       throw  new Error('Credentials must be provided');
     }
 
+    //Try to load the model mapping (salesforce object - display name)
+    try {
+      this.modelMapping = require(this.libPath.config + '/model-mapping.json');
+    } catch (ex) {
+      this.modelMapping = {};
+    }
+
   }
 
+  /**
+   * Initiate endpoint and static file generation
+   * @return {Promise}
+   */
   generate() {
     var _this = this;
 
     return new Promise(function generatorPromise(resolve, reject) {
+
+      //Write all the static files and endpoints
       var promises = [_this.writeStaticFiles(),
         _this.generateEndpoints()];
 
@@ -159,26 +174,37 @@ class Generator {
 
   }
 
+  /**
+   * Generate CRUD endpoints for all the synced models
+   * @return {Promise}
+   */
   generateEndpoints() {
     var _this = this;
 
     return new Promise(function endpointGeneration(resolve, reject) {
       var baseEndpoint = '/application/{applicationId}';
 
+      //Get heroku mapping from heroku connect api
       HerokuData
         .getMappings(null, _this.credentials.herokuConnect)
         .then(function onData(mappings) {
           var promises = [];
 
+          //Generate endpoint for each models
           mappings.forEach(function forEachMap(map) {
-            var objectName = map.object_name;
+            var objectName = map.object_name,
+
+              //Name to be used in the code. e.g: endpoint, function name etc
+              displayName = _this.modelMapping[objectName] || _.camelCase(objectName);
+
             var opts = {
               credentials: _this.credentials,
               basePath: _this.libPath.base,
               version: _this.apiVersion,
               endpointConfig: {
+                name: displayName,
                 modelName: objectName,
-                path: baseEndpoint + '/' + objectName + 's',
+                path: baseEndpoint + '/' + Pluralize(displayName),
                 endPointTypes: [
                   "add",
                   "list",
@@ -188,20 +214,39 @@ class Generator {
                 ]
               }
             };
+
             var endpointGenerator = new EndpointGenerator(opts);
 
+            //Add display name to modelMapping if it doesn't exist
+            if (!_this.modelMapping[objectName])
+              _this.modelMapping[objectName] = displayName;
+
             console.log('Generating endpoint for ' + Colors.cyan(objectName) + '!');
+
+            //Use endpoint generator to generate endpoints for model
             promises.push(endpointGenerator.generateEndpoints());
 
-            Promise
-              .all(promises)
-              .then(function () {
-                resolve();
-              })
-              .catch(function (ex) {
-                reject(ex);
-              })
           });
+
+          //When all the endpoints are generated
+          Promise
+            .all(promises)
+            //Write the model name mapping to disk
+            .then(function () {
+              var modelMappingPath = _this.libPath.config +
+                '/model-mapping.json';
+
+              return Utils
+                .writeFile(modelMappingPath,
+                  JSON.stringify(_this.modelMapping, null, 2),
+                  {flag: 'wx'});
+            })
+            .then(function () {
+              resolve();
+            })
+            .catch(function (ex) {
+              reject(ex);
+            })
         })
     });
   }

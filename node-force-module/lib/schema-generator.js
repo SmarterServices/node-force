@@ -19,18 +19,19 @@ class SchemaGenerator {
   /**
    * Schema generator
    * @param modelName {String} Name of the model
+   * @param displayName {String} Name to be displayed
    * @param config {Object}
    * @param config.herokuMapping {Object} Heroku mapping for object
    * @param config.forceObject {Object} Salesforce object for model
    * @param config.salesforceValidation {Object} Validations for salesForce
    * @param config.basePath {String} Root path to the project
    */
-  constructor(modelName, config) {
+  constructor(modelName, displayName, config) {
     var basePath = Path.resolve(config.basePath || './../../');
 
     this.modelName = modelName;
-    this.name = _.camelCase(this.modelName);
-    this.fileName = _.replace(_.startCase(this.name), ' ', '__').toLowerCase();
+    this.displayName = displayName;
+    this.fileName = _.replace(_.startCase(this.displayName), ' ', '-').toLowerCase();
     this.herokuMapping = config.herokuMapping || {};
     this.forceObject = config.forceObject || {};
     this.salesforceValidation = config.salesforceValidation || [];
@@ -130,7 +131,7 @@ module.exports = Joi.object({
 ${joiProperties.join(',' + EOL)}
 })
 .required()
-.description('${_.startCase(this.name)} payload');`;
+.description('${_.startCase(this.displayName)} payload');`;
 
   }
 

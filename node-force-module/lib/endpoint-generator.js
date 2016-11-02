@@ -35,10 +35,12 @@ class EndpointGenerator {
     var basePath = Path.resolve(opts.basePath || './../..');
 
     this.endpointConfig = opts.endpointConfig;
-    this.name = _.camelCase(this.endpointConfig.modelName);
     this.modelName = this.endpointConfig.modelName;
+    this.displayName = this.endpointConfig.name || this.modelName;
     this.credentials = opts.credentials;
-    this.fileName = _.replace(_.startCase(this.modelName), ' ', '__').toLowerCase();
+
+    //When name is 'testName' file name would be 'test-name'
+    this.fileName = _.replace(_.startCase(this.displayName), ' ', '-').toLowerCase();
     this.apiVersion = opts.version || 'v1';
 
     this.libPath = {
@@ -113,9 +115,9 @@ class EndpointGenerator {
    * @return {string}
    */
   getRoute(routeType) {
-    var methodName = routeType + _.upperFirst(this.name);
+    var methodName = routeType + _.upperFirst(this.displayName);
     var method = endpointMethodMap[routeType],
-      reply = `reply.view('partials/${this.fileName}', {${this.name}: r});`,
+      reply = `reply.view('partials/${this.fileName}', {${this.displayName}: r});`,
       paginationQueryTemplate = '',
       paginationQueryOpts = '',
       payloadTemplate,
@@ -147,7 +149,7 @@ class EndpointGenerator {
         //For list reply will have pagination
         reply = `reply.view('${this.fileName}Collection',
           {
-            ${this.name}: r,
+            ${this.displayName}: r,
             endpoint: request.server.info.uri +
               request.path
           });`;
@@ -162,13 +164,13 @@ class EndpointGenerator {
       case 'get':
       case 'update':
       case 'delete':
-        path = this.endpointConfig.path + '/{' + this.name + 'Id' + '}';
+        path = this.endpointConfig.path + '/{' + this.displayName + 'Id' + '}';
         break;
     }
 
     if (method === 'POST' || method === 'PUT') {
       payloadTemplate = `,
-      payload: ${this.name}Schema`
+      payload: ${this.displayName}Schema`
     } else {
       payloadTemplate = '';
     }
@@ -188,7 +190,7 @@ ${paramData.paramAssignments}${paginationQueryOpts},
         payload: request.payload
       };
 
-      ${_.upperFirst(this.name)}Handler.${methodName}(opts, function (err, r) {
+      ${_.upperFirst(this.displayName)}Handler.${methodName}(opts, function (err, r) {
         if (err) {
           reply(Boom.badRequest(err));
         } else {
@@ -196,8 +198,8 @@ ${paramData.paramAssignments}${paginationQueryOpts},
         }
       })
     },
-    tags: ['api', '${this.name.toLocaleLowerCase()}'],
-    description: '${_.upperFirst(routeType)} ${this.name}',
+    tags: ['api', '${this.displayName.toLocaleLowerCase()}'],
+    description: '${_.upperFirst(routeType)} ${this.displayName}',
     validate: {
       params:${paramData.validations}${paginationQueryTemplate}${payloadTemplate}
     }
@@ -213,7 +215,7 @@ ${paramData.paramAssignments}${paginationQueryOpts},
    */
   getHandler(endpointType) {
     var modelConversion = '',
-      methodName = endpointType + _.upperFirst(this.name);
+      methodName = endpointType + _.upperFirst(this.displayName);
 
     //For add and update endpoint the public keys are replaced by mapped key
     if (endpointType === 'add' || endpointType === 'update') {
@@ -224,7 +226,7 @@ ${paramData.paramAssignments}${paginationQueryOpts},
     //Build the actual handler structure
     return `
   /**
-   * ${_.upperFirst(endpointType)} ${this.name} handler
+   * ${_.upperFirst(endpointType)} ${this.displayName} handler
    * @param data
    * @param callback
    */
@@ -232,7 +234,7 @@ ${paramData.paramAssignments}${paginationQueryOpts},
     ${modelConversion}
 
     //Call the service to get the data from DB
-    ${_.upperFirst(this.name)}Service
+    ${_.upperFirst(this.displayName)}Service
       .${methodName}(data)
       .then(function onSuccess(data) {
         callback(null, data);
@@ -249,11 +251,11 @@ ${paramData.paramAssignments}${paginationQueryOpts},
    * @return {string}
    */
   getService(endpointType) {
-    var methodName = endpointType + _.upperFirst(this.name);
+    var methodName = endpointType + _.upperFirst(this.displayName);
 
     return `
   /**
-   * ${_.upperFirst(endpointType)} ${this.name} service
+   * ${_.upperFirst(endpointType)} ${this.displayName} service
    * @param data {Object}
    * @return {Promise}
    */
@@ -262,7 +264,7 @@ ${paramData.paramAssignments}${paginationQueryOpts},
 
       //call common DB method with model name to retrieve data
       HerokuData
-        .${endpointType}Data('${_.lowerFirst(this.modelName)}', data)
+        .${endpointType}Data('${this.fileName}', data)
         .then(function onSuccess(data) {
           resolve(data);
         })
@@ -295,10 +297,10 @@ ${paramData.paramAssignments}${paginationQueryOpts},
 var Joi = require('joi');
 
 var schemaProvider = require('./schema/schema-provider');
-var ${this.name}Schema = schemaProvider.schema['${this.fileName}'];
+var ${this.displayName}Schema = schemaProvider.schema['${this.fileName}'];
 
 var Boom = require('boom');
-var ${_.upperFirst(this.name)}Handler = require('./../../lib/handlers/${this.fileName}');
+var ${_.upperFirst(this.displayName)}Handler = require('./../../lib/handlers/${this.fileName}');
 
 module.exports = [${routes.join(',' + EOL)}];
 `
@@ -323,14 +325,14 @@ module.exports = [${routes.join(',' + EOL)}];
 
 var Utils = require('./../helpers/utils');
 var Mapping = require('./../../config/routes/schema/${this.fileName}.json');
-var ${_.upperFirst(this.name)}Service = require('./../services/${this.fileName}');
+var ${_.upperFirst(this.displayName)}Service = require('./../services/${this.fileName}');
 
-var ${this.name}Handler = {
+var ${this.displayName}Handler = {
 ${handlers.join(',' + Os.EOL)}
 
 }
 
-module.exports = ${this.name}Handler;
+module.exports = ${this.displayName}Handler;
 `
   }
 
@@ -352,11 +354,11 @@ module.exports = ${this.name}Handler;
 'use strict';
 var HerokuData = require('./../middleware/heroku-connect');
 
-var ${this.name}Service = {
+var ${this.displayName}Service = {
 ${services.join(',' + Os.EOL)}
 };
 
-module.exports = ${this.name}Service;
+module.exports = ${this.displayName}Service;
 `
   }
 
@@ -379,7 +381,7 @@ module.exports = ${this.name}Service;
 
     for (key in mapping) {
       if (mapping.hasOwnProperty(key)) {
-        template += `json.set('${mapping[key]}', ${this.name}.${key});` + EOL;
+        template += `json.set('${mapping[key]}', ${this.displayName}.${key});` + EOL;
       }
     }
 
@@ -393,13 +395,13 @@ module.exports = ${this.name}Service;
   getCollectionTemplate() {
     return `json.set(json.partial('pagination', {
   page: {
-    lastEvaluatedKey: ${this.name}.lastEvaluatedKey,
+    lastEvaluatedKey: ${this.displayName}.lastEvaluatedKey,
     endpoint: endpoint,
-    limit: ${this.name}.limit,
-    count: ${this.name}.results.length
+    limit: ${this.displayName}.limit,
+    count: ${this.displayName}.results.length
   }}));
-json.set('results', json.array(${this.name}.results, (json, item) => {
-        json.set(json.partial('${this.fileName}', { ${this.name}: item}));
+json.set('results', json.array(${this.displayName}.results, (json, item) => {
+        json.set(json.partial('${this.fileName}', { ${this.displayName}: item}));
 }));
 `
   }
@@ -433,7 +435,9 @@ json.set('results', json.array(${this.name}.results, (json, item) => {
         };
 
 
-        var schema = new SchemaGenerator(_this.modelName, schemaGeneratorOptions);
+        var schema = new SchemaGenerator(_this.modelName,
+          _this.displayName,
+          schemaGeneratorOptions);
 
         //Generate and write the schema to the disk
         return schema.generateSchema()
