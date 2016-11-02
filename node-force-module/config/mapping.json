@@ -59,5 +59,55 @@
     "add": "POST",
     "update": "PUT",
     "delete": "DELETE"
-  }
+  },
+  "modules": [
+    {
+      "name": "@ideapod/hapi-json-view",
+      "version": "^1.0.0"
+    },
+    {
+      "name": "boom",
+      "version": "^4.1.0"
+    },
+    {
+      "name": "config",
+      "version": "^1.16.0"
+    },
+    {
+      "name": "hapi",
+      "version": "^15.1.1"
+    },
+    {
+      "name": "hapi-swagger",
+      "version": "^7.3.0"
+    },
+    {
+      "name": "inert",
+      "version": "^3.0.1"
+    },
+    {
+      "name": "joi",
+      "version": "^9.1.1"
+    },
+    {
+      "name": "jsforce",
+      "version": "^1.7.0"
+    },
+    {
+      "name": "lodash",
+      "version": "^4.16.4"
+    },
+    {
+      "name": "moment",
+      "version": "2.10.6"
+    },
+    {
+      "name": "node-fetch",
+      "version": "^1.6.3"
+    },
+    {
+      "name": "vision",
+      "version": "^4.1.0"
+    }
+  ]
 }

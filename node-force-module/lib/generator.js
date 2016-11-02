@@ -9,6 +9,7 @@ var Pluralize = require('pluralize');
 var Utils = require('./helpers/utils');
 var HerokuData = require('./middleware/heroku-connect');
 var EndpointGenerator = require('./endpoint-generator');
+var Mappings = require('./../config/mapping.json');
 
 class Generator {
   /**
@@ -240,6 +241,24 @@ class Generator {
                 .writeFile(modelMappingPath,
                   JSON.stringify(_this.modelMapping, null, 2),
                   {flag: 'wx'});
+            })
+            .then(function addPackages() {
+              var packages = Mappings.modules,
+                packagePath = _this.libPath.base + '/package.json';
+
+              //Old packages must be kept as there might be package for custom code
+              var oldPackage = require(packagePath);
+
+              //Include all of the used packages
+              packages.forEach(function forEachPack(pack) {
+                oldPackage.dependencies[pack.name] = pack.version;
+              });
+
+              //Update the file
+              return Utils
+                .writeFile(packagePath,
+                  JSON.stringify(oldPackage, null, 2),
+                  {flag: 'w+'});
             })
             .then(function () {
               resolve();
