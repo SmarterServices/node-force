@@ -36,7 +36,7 @@ class EndpointGenerator {
 
     this.endpointConfig = opts.endpointConfig;
     this.modelName = this.endpointConfig.modelName;
-    this.displayName = this.endpointConfig.name || this.modelName;
+    this.displayName = this.endpointConfig.name || _.camelCase(this.modelName);
     this.credentials = opts.credentials;
 
     //When name is 'testName' file name would be 'test-name'

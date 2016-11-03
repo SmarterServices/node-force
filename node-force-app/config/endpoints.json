@@ -1,0 +1,23 @@
+[
+  {
+    "modelName": "account",
+    "path": "/applications/{applicationId}/accounts",
+    "endPointTypes": [
+      "add",
+      "list",
+      "get",
+      "update",
+      "delete"
+    ]
+  }, {
+    "modelName": "tanzir__c",
+    "path": "/applications/{applicationId}/tanzirs",
+    "endPointTypes": [
+      "add",
+      "list",
+      "get",
+      "update",
+      "delete"
+    ]
+  }
+]

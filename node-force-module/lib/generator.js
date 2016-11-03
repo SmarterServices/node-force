@@ -17,13 +17,15 @@ class Generator {
    * @param path {String} Path to the root project directory
    * @param credentials {Object|string} Path or value of the credential for
    * heroku connect, salesForce and postgresDB
+   * @param endpointConfig {Array|string|null} Configuration for endpoints
    * @param version {String|null} Version of API default is v1
    */
-  constructor(path, credentials, version) {
+  constructor(path, credentials, endpointConfig, version) {
     var basePath = Path.resolve(path || './../..');
 
     this.credentials = credentials;
     this.apiVersion = version || 'v1';
+    this.endpointConfig = endpointConfig;
     this.modelMapping = {};
 
     this.libPath = {
@@ -101,6 +103,19 @@ class Generator {
       this.modelMapping = {};
     }
 
+    //If endpointConfig is a path to the file
+    if (this.endpointConfig && (typeof this.endpointConfig === 'string')) {
+      try {
+        var configPath = Path.join(this.libPath.base + '/' + this.endpointConfig);
+        this.endpointConfig = require(configPath);
+      } catch (ex) {
+        console.error('Invalid path to endpointConfig!');
+        console.log('Creating endpoints for all models');
+        this.endpointConfig = null;
+      }
+
+    }
+
   }
 
   /**
@@ -140,7 +155,7 @@ class Generator {
     }, {
       path: this.libPath.config + '/endpoints.json',
       data: Utils.readFile(templateFilesPath + '/_endpoints-config.json', false),
-      opts: {flag: 'w+'}
+      opts: {flag: 'wx'}
     }, {
       path: this.libPath.routes + '/routes.js',
       data: Utils.readFile(templateFilesPath + '/_routes.js', false)
@@ -176,6 +191,56 @@ class Generator {
   }
 
   /**
+   * Build the configuration file
+   * @return {Promise}
+   * @private
+   */
+  _getEndpointConfig() {
+    var _this = this;
+
+    return new Promise(function getEndpointConfig(resolve, reject) {
+
+      //If endpoint config is provided the provided data will be returned
+      if (_this.endpointConfig)
+        return resolve(_this.endpointConfig);
+
+      //If no config is provided config is build by
+      // getting the mapping from heroku connect
+      return HerokuData
+        .getMappings(null, _this.credentials.herokuConnect)
+        .then(function onData(mappings) {
+          var endpointConfigs = [],
+            baseEndpoint = '/application/{applicationId}';
+
+          //Generate endpoint for each models
+          mappings.forEach(function forEachMap(map) {
+            var objectName = map.object_name,
+
+              //Name to be used in the code. e.g: endpoint, function name etc
+              displayName = _this.modelMapping[objectName] || _.camelCase(objectName);
+
+            //Create config file for each object
+            endpointConfigs.push({
+              name: displayName,
+              modelName: objectName,
+              path: baseEndpoint + '/' + Pluralize(displayName),
+              endPointTypes: [
+                "add",
+                "list",
+                "get",
+                "update",
+                "delete"
+              ]
+            })
+          });
+
+          return resolve(endpointConfigs);
+        });
+
+    });
+  }
+
+  /**
    * Generate CRUD endpoints for all the synced models
    * @return {Promise}
    */
@@ -186,36 +251,23 @@ class Generator {
       var baseEndpoint = '/application/{applicationId}';
 
       //Get heroku mapping from heroku connect api
-      HerokuData
-        .getMappings(null, _this.credentials.herokuConnect)
-        .then(function onData(mappings) {
+      _this._getEndpointConfig()
+        .then(function onData(configs) {
           var promises = [];
 
           //Generate endpoint for each models
-          mappings.forEach(function forEachMap(map) {
-            var objectName = map.object_name,
-
-              //Name to be used in the code. e.g: endpoint, function name etc
+          configs.forEach(function forEachMap(config) {
+            var objectName = config.modelName,
               displayName = _this.modelMapping[objectName] || _.camelCase(objectName);
 
             var opts = {
               credentials: _this.credentials,
               basePath: _this.libPath.base,
               version: _this.apiVersion,
-              endpointConfig: {
-                name: displayName,
-                modelName: objectName,
-                path: baseEndpoint + '/' + Pluralize(displayName),
-                endPointTypes: [
-                  "add",
-                  "list",
-                  "get",
-                  "update",
-                  "delete"
-                ]
-              }
+              endpointConfig: config
             };
 
+            //Create an endpoint generator for model
             var endpointGenerator = new EndpointGenerator(opts);
 
             //Add display name to modelMapping if it doesn't exist
