@@ -1,6 +1,0 @@
-{
-    "port":8011,
-    "routes": {
-    "cors": true
-}
-}
