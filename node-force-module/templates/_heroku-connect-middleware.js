@@ -70,6 +70,7 @@ var herokuConnect = {
     });
   },
 
+  //SEQUELIZE ORM Operations
   addData: function (modelName, data) {
     return new Promise(function addAccountPromise(resolve, reject) {
       var model;
@@ -176,6 +177,7 @@ var herokuConnect = {
 
     });
   },
+
   updateData: function list(modelName, data) {
     return new Promise(function addAccountPromise(resolve, reject) {
       var model;
@@ -212,7 +214,6 @@ var herokuConnect = {
     });
   },
 
-
   deleteData: function remove(modelName, data) {
     return new Promise(function deleteAccountPromise(resolve, reject) {
       var model;
@@ -248,6 +249,7 @@ var herokuConnect = {
 
     });
   }
+  //SEQUELIZE ORM Operations
 };
 
 module.exports = herokuConnect;

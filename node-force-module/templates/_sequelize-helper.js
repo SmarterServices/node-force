@@ -4,6 +4,7 @@ var Fs = require('fs');
 
 var models = {};
 
+//Sequelize model provider for each model available
 //Include the already generated models
 (function () {
   var files;

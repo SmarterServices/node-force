@@ -13,7 +13,7 @@ var Mappings = require('./../config/mapping.json');
 
 class Generator {
   /**
-   * Generate everything
+   * Generate every structure of salesforce models. Models will be created from heroku connect api or from endpointConfig if given
    * @param path {String} Path to the root project directory
    * @param credentials {Object|string} Path or value of the credential for
    * heroku connect, salesForce and postgresDB
@@ -96,7 +96,7 @@ class Generator {
       throw  new Error('Credentials must be provided');
     }
 
-    //Try to load the model mapping (salesforce object - display name)
+    //Try to load the model mapping (salesforce object name <-> user friendly display name)
     try {
       this.modelMapping = require(this.libPath.config + '/model-mapping.json');
     } catch (ex) {
@@ -136,7 +136,12 @@ class Generator {
         .all(promises)
         .then(function () {
           console.log('Endpoint generation ' + Colors.cyan('completed') + '!');
-          console.log(Colors.bgRed(Colors.black('Please update the credentials in config and run the server!')));
+          console.log(Colors.bgRed(Colors.black('Please update the config to include all the credentials if not exists and run the server!')));
+          resolve();
+        })
+        .catch(function (ex) {
+          console.error(ex.stack || ex);
+          reject(ex);
         });
     });
   }
@@ -205,7 +210,7 @@ class Generator {
         return resolve(_this.endpointConfig);
 
       //If no config is provided config is build by
-      // getting the mapping from heroku connect
+      // getting the mapping from heroku connect api
       return HerokuData
         .getMappings(null, _this.credentials.herokuConnect)
         .then(function onData(mappings) {

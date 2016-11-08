@@ -5,6 +5,7 @@ var Fs = require('fs');
 var schema = {};
 var mapping = {};
 
+//Joi Schema provider for each model available
 var updateSchema = function () {
   var schemaFiles = Fs.readdirSync(__dirname);
 

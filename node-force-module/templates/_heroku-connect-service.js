@@ -29,7 +29,7 @@ var syncModel = function syncSingleModel(modelName) {
 
         return schema.generateSchema()
           .then(function () {
-            console.log('Done doing stuff');
+            console.log('Generate Schema completed for model : ' + modelName);
           });
       })
       .then(function () {

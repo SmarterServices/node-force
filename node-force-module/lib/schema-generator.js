@@ -37,6 +37,7 @@ class SchemaGenerator {
     this.salesforceValidation = config.salesforceValidation || [];
     this.libPath = {
       base: basePath,
+      //sequelize schema path
       schema: Path.resolve(basePath + '/config/routes/schema'),
       models: Path.resolve(basePath + '/lib/models')
     };
