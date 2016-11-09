@@ -3,6 +3,11 @@ Node Force Module
 
 A node module to generate source code for `hapi.js` endpoints to run CRUD operation on dynamic `PostgreSQL` database that is synced with `salesforce`. 
 
+### Instruction to run 1st time:
+* run npm install
+* run   generator.generate() as detailed below
+* run npm install (again as generate has modified the package.json file)
+* Run the main service in the port as hapi server
 
 ### Exposed Functionalities:
 * [Generator](#generator)
