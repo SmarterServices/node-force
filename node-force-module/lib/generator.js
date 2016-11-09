@@ -10,6 +10,7 @@ var Utils = require('./helpers/utils');
 var HerokuData = require('./middleware/heroku-connect');
 var EndpointGenerator = require('./endpoint-generator');
 var Mappings = require('./../config/mapping.json');
+var PreInstallScript = require('./../templates/_pre-install');
 
 class Generator {
   /**
@@ -301,7 +302,8 @@ class Generator {
             })
             .then(function addPackages() {
               var packages = Mappings.modules,
-                packagePath = _this.libPath.base + '/package.json';
+                packagePath = _this.libPath.base + '/package.json',
+                preInstallScriptPath = _this.libPath.base + '/pre-install.js';
 
               //Old packages must be kept as there might be package for custom code
               var oldPackage = require(packagePath);
@@ -311,11 +313,26 @@ class Generator {
                 oldPackage.dependencies[pack.name] = pack.version;
               });
 
-              //Update the file
-              return Utils
-                .writeFile(packagePath,
-                  JSON.stringify(oldPackage, null, 2),
-                  {flag: 'w+'});
+              //add preinstall script command in package for dependency installation of postgres for sequelizejs
+              oldPackage.scripts['preinstall'] = 'npm install shelljs & node ./pre-install.js';
+
+              var promises = [];
+
+              //Update the package file
+              promises.push(
+                Utils
+                  .writeFile(packagePath,
+                    JSON.stringify(oldPackage, null, 2),
+                    {flag: 'w+'}));
+
+              //add pre-install script if not exists
+              promises.push(
+                Utils
+                  .writeFile(preInstallScriptPath,
+                    PreInstallScript,
+                    {flag: 'wx'}));
+
+              return Promise.all(promises);
             })
             .then(function () {
               resolve();

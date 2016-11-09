@@ -1,5 +1,5 @@
 {
-  "name": "node-force-module",
+  "name": "ss-node-force",
   "version": "0.0.1",
   "description": "Code generator for hapijs api for accessing data from  heroku connect database",
   "main": "index.js",

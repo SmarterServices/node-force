@@ -1,6 +1,6 @@
 'use strict';
 
-var NodeForceModule = require('node-force-module');
+var NodeForceModule = require('ss-node-force');
 var Config = require('config');
 
 // Require and load our packages
@@ -96,7 +96,7 @@ gulp.task('jslint', function (cb) {
 gulp.task('generate', function (cb) {
   //Create generator object with current location as root project directory
   //Config contains all the necessary credentials
-  var generator = new NodeForceModule.Generator(__dirname, Config, './config/endpoints.json', 'v1');
+  var generator = new NodeForceModule.Generator(__dirname, Config, null, 'v1');
 
   //Generate all the codes needed to get the API working
   generator

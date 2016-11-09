@@ -1,5 +1,5 @@
 'use strict';
-var NodeForceModule = require('node-force-module');
+var NodeForceModule = require('ss-node-force');
 var HerokuData = require('./../middleware/heroku-connect');
 var salesforceData = require('./../middleware/salesforce');
 var Utils = require('./../helpers/utils');
