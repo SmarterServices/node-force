@@ -162,8 +162,12 @@ class EndpointGenerator {
 
       //Path need an Id for get, update and delete type of endpoints
       case 'get':
+        path = this.endpointConfig.path + '/{' + this.displayName + 'Id' + '}';
+        break;
       case 'update':
       case 'delete':
+        //For update/delete reply will be the same response as sequelizejs returns
+        reply = `reply(r)`;
         path = this.endpointConfig.path + '/{' + this.displayName + 'Id' + '}';
         break;
     }

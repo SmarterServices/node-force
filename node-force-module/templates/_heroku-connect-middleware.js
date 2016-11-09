@@ -201,7 +201,7 @@ var herokuConnect = {
         .update(updateParams, updateFilter)
         .then(function onUpdate(data) {
           if (data.length === 1) {
-            return resolve(data.get());
+            return resolve(data);
           }
 
           reject('Not found');
@@ -237,7 +237,7 @@ var herokuConnect = {
         .update({IsDeleted: true}, updateFilter)
         .then(function onUpdate(data) {
           if (data.length === 1) {
-            return resolve(data.get());
+            return resolve(data);
           }
 
           reject('Not found');

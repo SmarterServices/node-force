@@ -3,6 +3,7 @@ var NodeForceModule = require('ss-node-force');
 var HerokuData = require('./../middleware/heroku-connect');
 var salesforceData = require('./../middleware/salesforce');
 var Utils = require('./../helpers/utils');
+var Path = require('path');
 
 var syncModel = function syncSingleModel(modelName) {
   return new Promise(function modelSync(resolve, reject) {
@@ -23,7 +24,7 @@ var syncModel = function syncSingleModel(modelName) {
           herokuMapping: modelData[0].config,
           forceObject: modelData[1],
           salesforceValidation: modelData[2],
-          basePath: __dirname + './../../'
+          basePath: Path.resolve('./')
         };
         var schema = new NodeForceModule.SchemaGenerator(modelName, config);
 

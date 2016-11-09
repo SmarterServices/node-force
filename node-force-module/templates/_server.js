@@ -29,7 +29,9 @@ routeFiles.forEach(function forEachRouteFile(routeFile) {
 });
 
 var swaggerOptions = {
-  apiVersion: Pack.version
+  info: {
+    version: Pack.version
+  }
 };
 server.register([
   Inert,
