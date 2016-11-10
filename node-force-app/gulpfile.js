@@ -102,7 +102,6 @@ gulp.task('generate', function (cb) {
   generator
     .generate()
     .then(function (data) {
-      console.log(data);
       cb();
     })
     .catch(function (ex) {
