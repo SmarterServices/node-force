@@ -4,21 +4,23 @@ Node Force Module
 A node module to generate source code for `hapi.js` endpoints to run CRUD operation on dynamic `PostgreSQL` database that is synced with `salesforce`. 
 
 ### Instruction to run 1st time:
-* run npm install
-* run   generator.generate() as detailed below
-* run npm install (again as generate has modified the package.json file)
+* run `npm install`
+* run   `generator.generate()` as detailed below
+* run `npm install` (again as generate has modified the package.json file)
 * Run the main service in the port as hapi server
 
-### Exposed Functionalities:
-* [Generator](#generator)
-	* [generate](#generatorgenerate)
-	* [writeStaticFiles](#generatorwritestaticfiles)
-	* [generateEndpoints](#generatorgenerateendpoints)
-* [EndpointGenerator](#endpointgenerator)
-	* [generateEndpoints](#endpointgeneratorgenerateendpoints)
-* [SchemaGenerator](#schemagenerator)
-	* [generateSchema](#schemageneratorgenerateschema)
-
+---
+### Index:
+* Classes
+	* [Generator](#generator)
+		* [generate](#generatorgenerate)
+		* [writeStaticFiles](#generatorwritestaticfiles)
+		* [generateEndpoints](#generatorgenerateendpoints)
+	* [EndpointGenerator](#endpointgenerator)
+		* [generateEndpoints](#endpointgeneratorgenerateendpoints)
+	* [SchemaGenerator](#schemagenerator)
+		* [generateSchema](#schemageneratorgenerateschema)
+* [Configuration](#custom-configuration)
 
 ----
 # Generator
@@ -75,6 +77,55 @@ var generator = new NodeForceModule.Generator(__dirname, config, null, 'v1');
     });
 ```
 
+Workflow of the generate method is a follows:
+
+![generator-workflow](https://raw.githubusercontent.com/SmarterServices/node-force/node-force-module/resources/generator-workflow.jpg?token=AOTJCfNUZNPKqfoHXPoV1pFrP6LaBMDiks5YLYsCwA%3D%3D "Generator method workflow")
+
+
+Running the `generate` method will create/modify the following files( **Bold files will be overridden if already exists others will be preserved if exists else they will be created**) letting that then `endpoints.json` is configured to generate endpoints for the `account` model only.
+
+<pre>
+│
+│   <i>package.json</i>
+│   pre-install.js
+│   <b>server.js</b>
+├───config
+│   │   endpoints.json
+│   │   model-mapping.json
+│   └───routes
+│       │   account.js
+│       │   routes.js
+│       └───schema
+│               <b>account.js</b>
+│               account.json
+│               schema-provider.js
+├───lib
+│   │   handler.js
+│   ├───handlers
+│   │       account.js
+│   │       heroku-connect.js
+│   ├───helpers
+│   │       sequelize.js
+│   │       utils.js
+│   ├───middleware
+│   │       heroku-connect.js
+│   │       salesforce.js
+│   ├───models
+│   │   │   account.js
+│   │   ├───schema
+│   │   │       <b>account.js</b>
+│   │   └───validation
+│   │           <b>account.js</b>
+│   └───services
+│           account.js
+│           heroku-connect.js
+└───templates
+    │   accountCollection.js
+    └───partials
+            account.js
+            pagination.js
+</pre>
+
 
 ## Generator.writeStaticFiles
 Create all the static files to run the server along with the `sync` and `syncAll` endpoints.
@@ -91,6 +142,34 @@ Create all the static files to run the server along with the `sync` and `syncAll
 
 ```
 
+The files that will be created for this method is as follows **(bold files will be overridden)**: 
+
+<pre>
+│   package.json
+│   <b>server.js</b>
+├───config
+│   │   endpoints.json
+│   └───routes
+│       │   routes.js
+│       └───schema
+│               schema-provider.js
+├───lib
+│   │
+│   ├───handlers
+│   │       heroku-connect.js
+│   ├───helpers
+│   │       sequelize.js
+│   │       utils.js
+│   ├───middleware
+│   │       heroku-connect.js
+│   │       salesforce.js
+│   └───services
+│           heroku-connect.js
+└───templates
+    └───partials
+            pagination.js
+</pre>
+
 
 ## Generator.generateEndpoints
 Create all the endpoints from the provided configuration.
@@ -106,6 +185,37 @@ Create all the endpoints from the provided configuration.
     });
 
 ```
+
+This method will create the following files while generating endpoints for `account` model only **(bold files will be overridden)**:
+
+<pre>
+│   package.json
+│   pre-install.js
+│
+├───config
+│   │   endpoints.json
+│   │   model-mapping.json
+│   └───routes
+│       │   account.js
+│       └───schema
+│               <b>account.js</b>
+│               account.json
+├───lib
+│   ├───handlers
+│   │       account.js
+│   ├───models
+│   │   │   <b>account.js</b>
+│   │   ├───schema
+│   │   │       account.js
+│   │   └───validation
+│   │           <b>account.js</b>
+│   └───services
+│           account.js
+└───templates
+    │   accountCollection.js
+    └───partials
+            account.js
+</pre>
 
 
 ---
@@ -161,6 +271,39 @@ Generate all the endpoints base on the provided configuration and writes them to
 ```
 endpointGenerator.generateEndpoints();
 ```
+
+
+This method will create the following files while generating endpoints with the above configuration **(bold files will be overridden)**:
+
+<pre>
+│   package.json
+│   pre-install.js
+│
+├───config
+│   │   endpoints.json
+│   │   model-mapping.json
+│   └───routes
+│       │   account.js
+│       └───schema
+│               <b>account.js</b>
+│               account.json
+├───lib
+│   ├───handlers
+│   │       account.js
+│   ├───models
+│   │   │   <b>account.js</b>
+│   │   ├───schema
+│   │   │       account.js
+│   │   └───validation
+│   │           <b>account.js</b>
+│   └───services
+│           account.js
+└───templates
+    │   accountCollection.js
+    └───partials
+            account.js
+</pre>
+
 
 ----
 
@@ -227,3 +370,91 @@ schemaGenerator.
     });
 ```
 
+This method will create the following files while generating schema for the `account` model **(bold files will be overridden)**:
+
+<pre>
+│   package.json
+│   pre-install.js
+│
+├───config
+│   │   endpoints.json
+│   │   model-mapping.json
+│   └───routes
+│       │   account.js
+│       └───schema
+│               <b>account.js</b>
+│               account.json
+├───lib
+│   ├───handlers
+│   │       account.js
+│   ├───models
+│   │   │   <b>account.js</b>
+│   │   ├───schema
+│   │   │       account.js
+│   │   └───validation
+│   │           <b>account.js</b>
+│   └───services
+│           account.js
+└───templates
+    │   accountCollection.js
+    └───partials
+            account.js
+</pre>
+
+# Custom Configuration
+
+The following files can be created/modified before running the code generation to control the input/output of the generated endpoints.
+
+
+<pre>
+└───config
+    │   endpoints.json
+    │   model-mapping.json
+    └───routes
+        └───schema
+                < model_name >.json
+
+</pre>
+
+* The `config/endpoints.json` contains an `array of object` that defines for which models the endpoints should be generated. It also contains the path and types of endpoints to be generated. If this file doesn't exist endpoints will be generated for all the mapped object models from `heroku connect`.
+
+	Example configuration:
+	
+	```
+	[
+	  {
+	    "modelName": "account",
+	    "path": "/applications/{applicationId}/accounts",
+	    "endPointTypes": [
+	      "add",
+	      "list"
+	    ]
+	  }
+	]
+	```
+
+* The `config/model-mapping.json` contains the mapping of `actual name - display name` of the salesforce objects. 
+	
+	If this file does not exist a prettified name of the model name will be used as the display name and will be written to the file once the generation is completed. If the file exists but configuration doesn't exist for any specific model then the actual name of the model will used as the display name. In the example bellow `test__c` is the actual model name and the display name in the endpoint will be `test`. 
+
+	Example: 
+	```
+	{
+  		"test__c": "test"
+	}
+
+	```
+
+* The `config/routes/schema/<model_name>.json` file contains the key mapping for the properties of the synced object. 
+
+	If this file does not exist a prettified version of the property name will be used as the display name and will be written to the file once the generation is completed. If the file exists but configuration doesn't exist for any specific then the property will be skipped from the endpoints related to that specific model.
+
+	This values will be used to generate the `config/routes/schema/<model_name>.js`(joi schema for the input) and `templates/partials/<model_name>.js`(endpoint output template). In the example bellow the `Id` and `Location__Longitude__s` are salesforce object property name but in the endpoints the exposed names will be `id` and `locationLongitude` respectively.
+
+	Example: 
+	```
+	{
+	  "Id": "id",
+	  "Location__Longitude__s": "locationLongitude"
+	}
+	```
