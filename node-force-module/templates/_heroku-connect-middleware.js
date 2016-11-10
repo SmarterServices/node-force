@@ -186,6 +186,9 @@ var herokuConnect = {
         where: {
           id: {
             $eq: data[_.lowerFirst(_.camelCase(modelName)) + 'Id']
+          },
+          IsDeleted: {
+            $ne: true
           }
         }
       };
@@ -221,6 +224,9 @@ var herokuConnect = {
         where: {
           id: {
             $eq: data[_.lowerFirst(_.camelCase(modelName)) + 'Id']
+          },
+          IsDeleted: {
+            $ne: true
           }
         },
         validate: true
