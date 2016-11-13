@@ -89,8 +89,9 @@ class Generator {
         credentialSchema,
         {allowUnknown: true},
         function (err) {
-          if (err)
+          if (err) {
             throw new Error('Invalid credentials; ' + err.message);
+          }
         });
 
     } else {
@@ -110,8 +111,8 @@ class Generator {
         var configPath = Path.join(this.libPath.base + '/' + this.endpointConfig);
         this.endpointConfig = require(configPath);
       } catch (ex) {
-        console.error('Invalid path to endpointConfig!');
-        console.log('Creating endpoints for all models');
+        console.error('Invalid path to endpointConfig! ' +
+          'Creating endpoints for all models');
         this.endpointConfig = null;
       }
 
@@ -207,8 +208,9 @@ class Generator {
     return new Promise(function getEndpointConfig(resolve, reject) {
 
       //If endpoint config is provided the provided data will be returned
-      if (_this.endpointConfig)
+      if (_this.endpointConfig) {
         return resolve(_this.endpointConfig);
+      }
 
       //If no config is provided config is build by
       // getting the mapping from heroku connect api
@@ -229,15 +231,15 @@ class Generator {
             endpointConfigs.push({
               name: displayName,
               modelName: objectName,
-              path: baseEndpoint + '/' + Pluralize(displayName),
+              path: baseEndpoint + '/' + Pluralize.plural(displayName),
               endPointTypes: [
-                "add",
-                "list",
-                "get",
-                "update",
-                "delete"
+                'add',
+                'list',
+                'get',
+                'update',
+                'delete'
               ]
-            })
+            });
           });
 
           return resolve(endpointConfigs);
@@ -277,8 +279,9 @@ class Generator {
             var endpointGenerator = new EndpointGenerator(opts);
 
             //Add display name to modelMapping if it doesn't exist
-            if (!_this.modelMapping[objectName])
+            if (!_this.modelMapping[objectName]) {
               _this.modelMapping[objectName] = displayName;
+            }
 
             console.log('Generating endpoint for ' + Colors.cyan(objectName) + '!');
 
@@ -314,7 +317,7 @@ class Generator {
               });
 
               //add preinstall script command in package for dependency installation of postgres for sequelizejs
-              oldPackage.scripts['preinstall'] = 'npm install shelljs & node ./pre-install.js';
+              oldPackage.scripts.preinstall = 'npm install shelljs & node ./pre-install.js';
 
               var promises = [];
 
@@ -339,8 +342,8 @@ class Generator {
             })
             .catch(function (ex) {
               reject(ex);
-            })
-        })
+            });
+        });
     });
   }
 }

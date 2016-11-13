@@ -68,7 +68,7 @@ var utils = {
               if (err && rejectOnError) {
                 return reject(err);
               }
-            })
+            });
 
         } else {
           Fs.writeFile(path, data, options, function (err, data) {
@@ -99,7 +99,7 @@ var utils = {
         }
 
         resolve(data);
-      })
+      });
     });
   },
 
@@ -111,7 +111,7 @@ var utils = {
         }
 
         resolve(data);
-      })
+      });
     });
   },
 
@@ -143,8 +143,9 @@ var utils = {
           resolve();
         })
         .catch(function onError(ex) {
-          if (rejectOnError)
+          if (rejectOnError) {
             return reject(ex);
+          }
 
           resolve();
         });

@@ -12,9 +12,21 @@
     "colors": "^1.1.2",
     "config": "^1.21.0",
     "joi": "^9.2.0",
-    "jsforce": "^1.7.0",
+    "jsforce": "^1.7.1",
     "lodash": "^4.16.4",
     "mkdirp": "^0.5.1",
     "pluralize": "^3.0.0"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "gulp": "^3.9.1",
+    "gulp-istanbul": "^1.1.1",
+    "gulp-jshint": "^2.0.2",
+    "gulp-jslint": "^1.0.5",
+    "gulp-mocha": "^3.0.1",
+    "gulp-run": "^1.7.1",
+    "jshint": "^2.9.4",
+    "supertest": "^2.0.1",
+    "targz": "^1.0.1"
   }
 }

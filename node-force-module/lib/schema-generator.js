@@ -31,7 +31,12 @@ class SchemaGenerator {
 
     this.modelName = modelName;
     this.displayName = displayName;
-    this.fileName = _.replace(_.startCase(this.displayName), ' ', '-').toLowerCase();
+
+    //Converts 'test_file' or 'testFile' or 'test____file' to 'test-file'
+    this.fileName = _
+      .replace(_.startCase(this.displayName), ' ', '-')
+      .toLowerCase();
+
     this.herokuMapping = config.herokuMapping || {};
     this.forceObject = config.forceObject || {};
     this.salesforceValidation = config.salesforceValidation || [];
@@ -69,8 +74,8 @@ class SchemaGenerator {
       delete require.cache[require
         .resolve(this.libPath.schema + '/' + this.fileName + '.json')];
 
-      this.keyMapping = require(this.libPath.schema + '/'
-        + this.fileName + '.json');
+      this.keyMapping = require(this.libPath.schema + '/' +
+        this.fileName + '.json');
     } catch (ex) {
       this.keyMapping = null;
     }
@@ -101,8 +106,9 @@ class SchemaGenerator {
         key = _.camelCase(fieldName.replace(customSchemaEndPattern, ''));
       }
 
-      if (fieldName === 'Id')
+      if (fieldName === 'Id') {
         return;
+      }
 
       //Property declaration
       fieldSchema = '  ' + key + ': Joi' + EOL;
@@ -145,8 +151,9 @@ ${joiProperties.join(',' + EOL)}
     var mapping = {},
       key;
 
-    if (this.keyMapping)
+    if (this.keyMapping) {
       return this.keyMapping;
+    }
 
     this.syncedForceFields.forEach(function forEachForceField(forceField) {
       var fieldName = forceField.name;
@@ -222,7 +229,7 @@ module.exports = {`;
 
       //Comment out the validation if it's not active
       if (active === 'false') {
-        validateMethod = EOL + '/*' + validateMethod + '*/'
+        validateMethod = EOL + '/*' + validateMethod + '*/';
       }
 
       validations += validateMethod;
@@ -336,14 +343,13 @@ module.exports = sequelize.define('${_.lowerFirst(this.modelName)}', schema, {
       field = forceField.name.toLowerCase(),
       isPrimaryKey = (forceField.type === 'id'),
 
-      isAutoIncrement = (forceField.type === 'id')
-        || false,
+      isAutoIncrement = (forceField.type === 'id') || false,
       // || forceField.autoNumber) //Not supported by sequelize
 
       allowNull = forceField.nillable,
-      defaultValue = forceField.defaultValue
-        ? ('\'' + forceField.defaultValue + '\'')
-        : null,
+      defaultValue = forceField.defaultValue ?
+        ('\'' + forceField.defaultValue + '\'') :
+        null,
       isUnique = forceField.unique,
       references = (forceField.referenceTargetField || null);
 

@@ -99,8 +99,9 @@ class EndpointGenerator {
         credentialSchema,
         {allowUnknown: true},
         function (err) {
-          if (err)
+          if (err) {
             throw new Error('Invalid credentials; ' + err.message);
+          }
         });
 
     } else {
@@ -174,7 +175,7 @@ class EndpointGenerator {
 
     if (method === 'POST' || method === 'PUT') {
       payloadTemplate = `,
-      payload: ${this.displayName}Schema`
+      payload: ${this.displayName}Schema`;
     } else {
       payloadTemplate = '';
     }
@@ -224,7 +225,7 @@ ${paramData.paramAssignments}${paginationQueryOpts},
     //For add and update endpoint the public keys are replaced by mapped key
     if (endpointType === 'add' || endpointType === 'update') {
       modelConversion = 'data.payload = Utils.getMappedObject(data.payload,' +
-        ' Mapping, true);'
+        ' Mapping, true);';
     }
 
     //Build the actual handler structure
@@ -307,7 +308,7 @@ var Boom = require('boom');
 var ${_.upperFirst(this.displayName)}Handler = require('./../../lib/handlers/${this.fileName}');
 
 module.exports = [${routes.join(',' + EOL)}];
-`
+`;
   }
 
   /**
@@ -337,7 +338,7 @@ ${handlers.join(',' + Os.EOL)}
 }
 
 module.exports = ${this.displayName}Handler;
-`
+`;
   }
 
   /**
@@ -363,7 +364,7 @@ ${services.join(',' + Os.EOL)}
 };
 
 module.exports = ${this.displayName}Service;
-`
+`;
   }
 
   /**
@@ -407,7 +408,7 @@ module.exports = ${this.displayName}Service;
 json.set('results', json.array(${this.displayName}.results, (json, item) => {
         json.set(json.partial('${this.fileName}', { ${this.displayName}: item}));
 }));
-`
+`;
   }
 
   /**
@@ -444,7 +445,7 @@ json.set('results', json.array(${this.displayName}.results, (json, item) => {
           schemaGeneratorOptions);
 
         //Generate and write the schema to the disk
-        return schema.generateSchema()
+        return schema.generateSchema();
       })
       .then(function () {
 
@@ -468,7 +469,7 @@ json.set('results', json.array(${this.displayName}.results, (json, item) => {
 
         //Write all the endpoint files to the disk
         return Utils.batchWriteFile(files, {flag: 'wx'}, false);
-      })
+      });
 
   }
 }
