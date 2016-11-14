@@ -7,7 +7,8 @@ var gulp = require('gulp'),
   istanbul = require('gulp-istanbul'),
   jslint = require('gulp-jslint'),
   jshint = require('gulp-jshint');
-var Utils = require('./lib/helpers/utils');
+var Targz = require('targz');
+var Rimraf = require('rimraf');
 
 // Reference our app files for easy reference in out gulp tasks
 var paths = {
@@ -28,12 +29,28 @@ gulp.task('tests', function (cb) {
     .pipe(istanbul.hookRequire()) // Force `require` to return covered files
 
     .on('finish', function () {
-      gulp.src(paths.tests)
-        .pipe(mocha({reporter: 'spec', timeout: 5000}))
-        .pipe(istanbul.writeReports()) // Creating the reports after tests run
-        .on('end', function () {
-          cb().pipe(process.exit());
-        });
+
+      //Extract the full app structure temporarily
+      Targz.decompress({
+        src: './test/test-data/node-force-app.tar.gz',
+        dest: './test/temp/node-force-app'
+      }, function (err) {
+        if (err) {
+          return console.log(err.stack);
+        }
+
+        gulp.src(paths.tests)
+          .pipe(mocha({reporter: 'spec', timeout: 5000}))
+          .pipe(istanbul.writeReports()) // Creating the reports after tests run
+          .on('end', function () {
+
+            //Clean the temp app files
+            Rimraf('./test/temp', function () {
+              cb().pipe(process.exit());
+            });
+          });
+      });
+
     });
 });
 
