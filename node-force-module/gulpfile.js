@@ -46,7 +46,8 @@ gulp.task('tests', function (cb) {
 
             //Clean the temp app files
             Rimraf('./test/temp', function () {
-              cb().pipe(process.exit());
+              cb();
+              process.exit();
             });
           });
       });
