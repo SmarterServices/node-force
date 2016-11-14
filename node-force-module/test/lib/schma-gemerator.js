@@ -352,50 +352,74 @@ describe('Testing schema generator class', function () {
 
     });
 
-    /*
-     it('Should create joi object without any property if heroku mapping is not provided', function () {
-     var exception = null;
-     var config = {
-     herokuMapping: schemaData.config.herokuMapping,
-     forceObject: schemaData.config.forceObject,
-     salesforceValidation: schemaData.config.salesforceValidation,
-     basePath: tempFilePath + '/node-force-app'
-     };
+  });
 
-     try {
-     var schemaGenerator = new SsNodeForce.SchemaGenerator(schemaData.modelName, schemaData.displayName, config);
-     var schemaString = schemaGenerator.getJoiSchema();
-     } catch (ex) {
-     exception = ex;
-     }
+  describe('Testing getMapping method', function () {
 
-     //Check if there are any exceptions
-     expect(exception).to.equal(null);
-     expect(typeof schemaString).to.equal('string');
+    it('Schema generator should contain getMapping function', function (done) {
+      var exception = null;
+      var config = {
+        herokuMapping: schemaData.config.herokuMapping,
+        forceObject: schemaData.config.forceObject,
+        salesforceValidation: schemaData.config.salesforceValidation,
+        basePath: tempFilePath + '/node-force-app'
+      };
 
-     //Write the file to disk to test it
-     return Utils
-     .writeFile(tempFilePath + '/account-joi-schema.js', schemaString, {flag: 'w+'})
-     .then(function () {
-     try {
-     var joiSchema = require(tempFilePath + '/account-joi-schema');
-     var schemaStructure = JoiToJsonSchema(joiSchema);
-     } catch (ex) {
-     exception = ex;
-     }
+      try {
+        var schemaGenerator = new SsNodeForce.SchemaGenerator(schemaData.modelName, schemaData.displayName, config);
+      } catch (ex) {
+        exception = ex;
+      }
 
-     expect(exception).to.equal(null);
-     expect(joiSchema.isJoi).to.equal(true);
+      expect(exception).to.equal(null);
+      expect(schemaGenerator.getMapping).not.to.equal(undefined);
+      expect(typeof schemaGenerator.getMapping).to.equal('function');
+      done();
+    });
 
-     //Should contain one less properties then heroku mapping (id should not be in schema)
-     expect(Object.keys(schemaStructure.properties).length)
-     .to.equal(Object.keys(schemaData.config.herokuMapping.fields).length - 1);
-     });
+    it('Should return keyMapping as JSON formatted string', function (done) {
+      var exception = null;
+      var config = {
+        herokuMapping: schemaData.config.herokuMapping,
+        forceObject: schemaData.config.forceObject,
+        salesforceValidation: schemaData.config.salesforceValidation,
+        basePath: tempFilePath + '/node-force-app'
+      };
+
+      try {
+        var schemaGenerator = new SsNodeForce.SchemaGenerator(schemaData.modelName, schemaData.displayName, config);
+        var mappingString = schemaGenerator.getMapping();
+        JSON.parse(mappingString);
+      } catch (ex) {
+        exception = ex;
+      }
+
+      expect(exception).to.equal(null);
+      expect(typeof mappingString).to.equal('string');
+      done();
+    });
 
 
-     });
-     */
+    it('Mapping should contain mapping for all the synced properties', function (done) {
+      var exception = null;
+      var config = {
+        herokuMapping: schemaData.config.herokuMapping,
+        forceObject: schemaData.config.forceObject,
+        salesforceValidation: schemaData.config.salesforceValidation,
+        basePath: tempFilePath + '/node-force-app'
+      };
 
+      try {
+        var schemaGenerator = new SsNodeForce.SchemaGenerator(schemaData.modelName, schemaData.displayName, config);
+        var mapping = JSON.parse(schemaGenerator.getMapping());
+      } catch (ex) {
+        exception = ex;
+      }
 
+      expect(exception).to.equal(null);
+      expect(Object.keys(mapping).length)
+        .to.equal(Object.keys(schemaData.config.herokuMapping.fields).length);
+      done();
+    });
   });
 });
