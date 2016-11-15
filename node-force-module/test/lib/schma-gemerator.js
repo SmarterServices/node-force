@@ -422,4 +422,133 @@ describe('Testing schema generator class', function () {
       done();
     });
   });
+
+  describe('Testing getSequelizeSchema method', function () {
+
+    it('Schema generator should contain getSequelizeSchema function', function (done) {
+      var exception = null;
+      var config = {
+        herokuMapping: schemaData.config.herokuMapping,
+        forceObject: schemaData.config.forceObject,
+        salesforceValidation: schemaData.config.salesforceValidation,
+        basePath: tempFilePath + '/node-force-app'
+      };
+
+      try {
+        var schemaGenerator = new SsNodeForce.SchemaGenerator(schemaData.modelName, schemaData.displayName, config);
+      } catch (ex) {
+        exception = ex;
+      }
+
+      expect(exception).to.equal(null);
+      expect(schemaGenerator.getSequelizeSchema).not.to.equal(undefined);
+      expect(typeof schemaGenerator.getSequelizeSchema).to.equal('function');
+      done();
+    });
+
+    it('Should return sequelize schema as formatted string', function (done) {
+      var exception = null;
+      var config = {
+        herokuMapping: schemaData.config.herokuMapping,
+        forceObject: schemaData.config.forceObject,
+        salesforceValidation: schemaData.config.salesforceValidation,
+        basePath: tempFilePath + '/node-force-app'
+      };
+
+      try {
+        var schemaGenerator = new SsNodeForce.SchemaGenerator(schemaData.modelName, schemaData.displayName, config);
+        var mappingString = schemaGenerator.getSequelizeSchema();
+      } catch (ex) {
+        exception = ex;
+      }
+
+      expect(exception).to.equal(null);
+      expect(typeof mappingString).to.equal('string');
+      done();
+    });
+
+    it('Sequelize schema should contain definition for all the synced properties', function () {
+      var exception = null;
+      var config = {
+        herokuMapping: schemaData.config.herokuMapping,
+        forceObject: schemaData.config.forceObject,
+        salesforceValidation: schemaData.config.salesforceValidation,
+        basePath: tempFilePath + '/node-force-app'
+      };
+
+      try {
+        var schemaGenerator = new SsNodeForce.SchemaGenerator(schemaData.modelName, schemaData.displayName, config);
+        var schemaString = schemaGenerator.getSequelizeSchema();
+      } catch (ex) {
+        exception = ex;
+      }
+
+      expect(exception).to.equal(null);
+
+      return Utils
+        .writeFile(tempFilePath + '/account-sequelize-schema.js', schemaString, {flag: 'w+'})
+        .then(function () {
+          var schema = require(tempFilePath + '/account-sequelize-schema.js');
+
+          expect(Object.keys(schema).length)
+            .to.equal(Object.keys(schemaData.config.herokuMapping.fields).length);
+        })
+    });
+
+    it('Sequelize schema should contain no property definition if there is no synced property (Heroku mapping empty)', function () {
+      var exception = null;
+      var config = {
+        forceObject: schemaData.config.forceObject,
+        salesforceValidation: schemaData.config.salesforceValidation,
+        basePath: tempFilePath + '/node-force-app'
+      };
+
+      try {
+        var schemaGenerator = new SsNodeForce.SchemaGenerator(schemaData.modelName, schemaData.displayName, config);
+        var schemaString = schemaGenerator.getSequelizeSchema();
+      } catch (ex) {
+        exception = ex;
+      }
+
+      expect(exception).to.equal(null);
+
+      return Utils
+        .writeFile(tempFilePath + '/account-sequelize-schema.js', schemaString, {flag: 'w+'})
+        .then(function () {
+          delete require.cache[require.resolve(tempFilePath + '/account-sequelize-schema.js')];
+          var schema = require(tempFilePath + '/account-sequelize-schema.js');
+
+          expect(Object.keys(schema).length).to.equal(0);
+        })
+    });
+
+
+    it('Sequelize schema should contain no property definition if there is no synced property (Empty forceObject)', function () {
+      var exception = null;
+      var config = {
+        herokuMapping: schemaData.config.herokuMapping,
+        salesforceValidation: schemaData.config.salesforceValidation,
+        basePath: tempFilePath + '/node-force-app'
+      };
+
+      try {
+        var schemaGenerator = new SsNodeForce.SchemaGenerator(schemaData.modelName, schemaData.displayName, config);
+        var schemaString = schemaGenerator.getSequelizeSchema();
+      } catch (ex) {
+        exception = ex;
+      }
+
+      expect(exception).to.equal(null);
+
+      return Utils
+        .writeFile(tempFilePath + '/account-sequelize-schema.js', schemaString, {flag: 'w+'})
+        .then(function () {
+          delete require.cache[require.resolve(tempFilePath + '/account-sequelize-schema.js')];
+          var schema = require(tempFilePath + '/account-sequelize-schema.js');
+
+          expect(Object.keys(schema).length).to.equal(0);
+        })
+    });
+
+  });
 });
