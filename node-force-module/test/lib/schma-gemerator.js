@@ -1,5 +1,6 @@
 'use strict';
 
+var Fs = require('fs');
 var Path = require('path');
 var expect = require('chai').expect;
 var JoiToJsonSchema = require('joi-to-json-schema');
@@ -676,4 +677,235 @@ describe('Testing schema generator class', function () {
     });
 
   });
+
+  describe('Testing generateSchema method', function () {
+    it('Schema generator should contain generateSchema  method', function (done) {
+      var exception = null;
+      var config = {
+        herokuMapping: schemaData.config.herokuMapping,
+        forceObject: schemaData.config.forceObject,
+        salesforceValidation: schemaData.config.salesforceValidation,
+        basePath: tempFilePath + '/node-force-app'
+      };
+
+      try {
+        var schemaGenerator = new SsNodeForce.SchemaGenerator(schemaData.modelName, schemaData.displayName, config);
+      } catch (ex) {
+        exception = ex;
+      }
+
+      expect(exception).to.equal(null);
+      expect(schemaGenerator.generateSchema).not.to.equal(undefined);
+      expect(typeof schemaGenerator.generateSchema).to.equal('function');
+      done();
+    });
+
+    it('Should generate sequelize schema & validation, joi schema and mapping file in their respective position of the project', function () {
+      var exception = null;
+      var config = {
+        herokuMapping: schemaData.config.herokuMapping,
+        forceObject: schemaData.config.forceObject,
+        salesforceValidation: schemaData.config.salesforceValidation,
+        basePath: tempFilePath + '/node-force-app'
+      };
+
+      try {
+        var schemaGenerator = new SsNodeForce.SchemaGenerator(schemaData.modelName, schemaData.displayName, config);
+      } catch (ex) {
+        exception = ex;
+      }
+
+      expect(exception).to.equal(null);
+
+      return schemaGenerator
+        .generateSchema()
+        .then(function () {
+          var tempProjectPath = tempFilePath + '/node-force-app';
+
+          //Try to access all the files that should be created
+          try {
+
+            //Joi schema
+            Fs.accessSync(tempProjectPath + '/config/routes/schema/' + schemaData.modelName + '.js', Fs.F_OK);
+          } catch (ex) {
+            var joiSchemaError = ex;
+          }
+
+          try {
+
+            //Mapping
+            Fs.accessSync(tempProjectPath + '/config/routes/schema/' + schemaData.modelName + '.json', Fs.F_OK);
+          } catch (ex) {
+            var mappingError = ex;
+          }
+
+
+          try {
+
+            //Sequelize schema
+            Fs.accessSync(tempProjectPath + '/lib/models/schema/' + schemaData.modelName + '.js', Fs.F_OK);
+          } catch (ex) {
+            var sequelizeSchemaError = ex;
+          }
+
+          try {
+
+            //sequelize validation
+            Fs.accessSync(tempProjectPath + '/lib/models/validation/' + schemaData.modelName + '.js', Fs.F_OK);
+          } catch (ex) {
+            var sequelizeValidationError = ex;
+          }
+
+          try {
+
+
+            Fs.accessSync(tempProjectPath + '/lib/models/' + schemaData.modelName + '.js', Fs.F_OK);
+          } catch (ex) {
+            var sequelizeModelError = ex;
+          }
+
+          expect(joiSchemaError).to.equal(undefined);
+          expect(mappingError).to.equal(undefined);
+          expect(sequelizeSchemaError).to.equal(undefined);
+          expect(sequelizeValidationError).to.equal(undefined);
+          expect(sequelizeModelError).to.equal(undefined);
+
+        });
+    });
+
+    it('Should use existing mapping and override the joi schema if exists', function () {
+      var exception = null;
+      var config = {
+        herokuMapping: schemaData.config.herokuMapping,
+        forceObject: schemaData.config.forceObject,
+        salesforceValidation: schemaData.config.salesforceValidation,
+        basePath: tempFilePath + '/node-force-app'
+      };
+      var mapping = {
+          IsDeleted: "isRemoved"
+        },
+        mappingPath = tempFilePath + '/node-force-app/config/routes/schema/' + schemaData.modelName + '.json';
+
+      //Create the mapping file
+      return Utils
+        .writeFile(mappingPath, JSON.stringify(mapping))
+        .then(function () {
+          var joiSchemaPath = tempFilePath +
+            '/node-force-app/config/routes/schema/' +
+            schemaData.modelName + '.js';
+
+          //Clear cache for mapping file
+          delete require.cache[require.resolve(mappingPath)];
+
+          try {
+            var schemaGenerator = new SsNodeForce.SchemaGenerator(schemaData.modelName, schemaData.displayName, config);
+          } catch (ex) {
+            exception = ex;
+          }
+
+          expect(exception).to.equal(null);
+
+          //Generate the schema
+          return schemaGenerator
+            .generateSchema()
+            .then(function () {
+
+              try {
+                //Clean cache if module was already required
+                delete require.cache[require.resolve(joiSchemaPath)];
+              } catch (ex) {
+                //If the module was not required before
+              }
+
+              var joiSchema = require(joiSchemaPath),
+                map = require(mappingPath),
+                schemaProperties = JoiToJsonSchema(joiSchema).properties;
+
+              expect(schemaProperties).to.have.property('isRemoved');
+              expect(schemaProperties).to.not.have.property('isDeleted');
+              expect(JSON.stringify(map)).to.equal(JSON.stringify(mapping));
+
+            })
+            .then(function () {
+              return Utils.unlinkFile(mappingPath);
+            });
+
+        })
+
+
+    });
+
+
+    it('Should override existing sequelize schema & validation but keep the sequelize model unchanged', function () {
+      var exception = null;
+      var config = {
+        herokuMapping: schemaData.config.herokuMapping,
+        forceObject: schemaData.config.forceObject,
+        salesforceValidation: schemaData.config.salesforceValidation,
+        basePath: tempFilePath + '/node-force-app'
+      };
+      var tempAppPath = tempFilePath + '/node-force-app',
+        schemaPath = tempAppPath + '/lib/models/schema/' + schemaData.modelName + '.js',
+        validationPath = tempAppPath + '/lib/models/validation/' + schemaData.modelName + '.js',
+        modelPath = tempAppPath + '/lib/models/' + schemaData.modelName + '.js';
+
+
+      //Create file exporting null to check if they are being overridden
+      return Utils
+        .batchWriteFile([
+          {
+            path: schemaPath,
+            data: 'module.exports = null'
+          },
+          {
+            path: validationPath,
+            data: 'module.exports = null'
+          },
+          {
+            path: modelPath,
+            data: 'module.exports = null'
+          }
+        ], {flags: 'w+'})
+        .then(function () {
+          var joiSchemaPath = tempFilePath +
+            '/node-force-app/config/routes/schema/' +
+            schemaData.modelName + '.js';
+
+          //Clear cache for mapping file
+          delete require.cache[require.resolve(schemaPath)];
+          delete require.cache[require.resolve(validationPath)];
+          delete require.cache[require.resolve(modelPath)];
+
+          try {
+            var schemaGenerator = new SsNodeForce.SchemaGenerator(schemaData.modelName, schemaData.displayName, config);
+          } catch (ex) {
+            exception = ex;
+          }
+
+          expect(exception).to.equal(null);
+
+          return schemaGenerator
+            .generateSchema()
+            .then(function () {
+
+              //Check if they are being overridden
+              expect(require(schemaPath)).to.not.equal(null);
+              expect(require(validationPath)).to.not.equal(null);
+
+              //Model should not be overridden
+              expect(require(modelPath)).to.equal(null);
+
+            })
+            .then(function () {
+              //Remove model file as it's not going to be overridden
+              return Utils.unlinkFile(modelPath)
+            });
+
+        })
+
+
+    });
+
+  });
+
 });
