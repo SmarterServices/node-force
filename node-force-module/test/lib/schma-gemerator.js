@@ -551,4 +551,129 @@ describe('Testing schema generator class', function () {
     });
 
   });
+
+  describe('Testing getSequelizeValidation method', function () {
+
+    it('Schema generator should contain getSequelizeValidation  method', function (done) {
+      var exception = null;
+      var config = {
+        herokuMapping: schemaData.config.herokuMapping,
+        forceObject: schemaData.config.forceObject,
+        salesforceValidation: schemaData.config.salesforceValidation,
+        basePath: tempFilePath + '/node-force-app'
+      };
+
+      try {
+        var schemaGenerator = new SsNodeForce.SchemaGenerator(schemaData.modelName, schemaData.displayName, config);
+      } catch (ex) {
+        exception = ex;
+      }
+
+      expect(exception).to.equal(null);
+      expect(schemaGenerator.getSequelizeValidation).not.to.equal(undefined);
+      expect(typeof schemaGenerator.getSequelizeValidation).to.equal('function');
+      done();
+    });
+
+
+    it('Should return javaScript code as formatted string for available salesForce validation rules', function (done) {
+      var exception = null;
+      var config = {
+        herokuMapping: schemaData.config.herokuMapping,
+        forceObject: schemaData.config.forceObject,
+        salesforceValidation: schemaData.config.salesforceValidation,
+        basePath: tempFilePath + '/node-force-app'
+      };
+
+      try {
+        var schemaGenerator = new SsNodeForce.SchemaGenerator(schemaData.modelName, schemaData.displayName, config);
+        var validationString = schemaGenerator.getSequelizeValidation();
+      } catch (ex) {
+        exception = ex;
+      }
+
+      expect(exception).to.equal(null);
+      expect(typeof validationString).to.equal('string');
+      done();
+    });
+
+
+    it('Should contain validation for each active validationRule', function () {
+      var exception = null;
+      var salesforceValidation = schemaData.config.salesforceValidation;
+      var config = {
+        herokuMapping: schemaData.config.herokuMapping,
+        forceObject: schemaData.config.forceObject,
+        salesforceValidation: schemaData.config.salesforceValidation,
+        basePath: tempFilePath + '/node-force-app'
+      };
+
+      try {
+        var schemaGenerator = new SsNodeForce.SchemaGenerator(schemaData.modelName, schemaData.displayName, config);
+        var validationString = schemaGenerator.getSequelizeValidation();
+      } catch (ex) {
+        exception = ex;
+      }
+
+      expect(exception).to.equal(null);
+
+      return Utils
+        .writeFile(tempFilePath + '/account-sequelize-validation.js', validationString, {flag: 'w+'})
+        .then(function () {
+          var schema = require(tempFilePath + '/account-sequelize-validation.js');
+          var activeRules = 0;
+
+          //Count the active rules
+          salesforceValidation.map(function (rule) {
+            if (rule.active === 'true') {
+              activeRules++;
+            }
+
+            return rule;
+          });
+
+          expect(Object.keys(schema).length).to.equal(activeRules);
+        })
+    });
+
+
+    it('Should contain inactive rules as commented codes', function () {
+      var exception = null;
+      var salesforceValidation = schemaData.config.salesforceValidation,
+        inactiveRules = 0;
+      var config = {
+        herokuMapping: schemaData.config.herokuMapping,
+        forceObject: schemaData.config.forceObject,
+        salesforceValidation: schemaData.config.salesforceValidation,
+        basePath: tempFilePath + '/node-force-app'
+      };
+
+      var commentPattern = new RegExp('\\/\\*', 'gm');
+
+      try {
+        var schemaGenerator = new SsNodeForce.SchemaGenerator(schemaData.modelName, schemaData.displayName, config);
+        var validationString = schemaGenerator.getSequelizeValidation();
+      } catch (ex) {
+        exception = ex;
+      }
+
+      expect(exception).to.equal(null);
+
+
+      //Count the active rules
+      salesforceValidation.map(function (rule) {
+        if (rule.active === 'true') {
+          inactiveRules++;
+        }
+
+        return rule;
+      });
+
+      //Length of comment block should be equal to inactive rules
+      expect(validationString.match(commentPattern).length).to.equal(inactiveRules);
+
+
+    });
+
+  });
 });
