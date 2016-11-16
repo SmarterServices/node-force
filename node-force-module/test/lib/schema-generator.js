@@ -4,6 +4,8 @@ var Fs = require('fs');
 var Path = require('path');
 var expect = require('chai').expect;
 var JoiToJsonSchema = require('joi-to-json-schema');
+var Targz = require('targz');
+var Rimraf = require('rimraf');
 
 var SsNodeForce = require('./../../index');
 var schemaData = require('./../test-data/shcma-generator.json');
@@ -13,6 +15,32 @@ var tempFilePath = Path.resolve(__dirname + './../temp');
 
 
 describe('Testing schema generator class', function () {
+
+  //Create the test files
+  before(function (done) {
+
+    Targz.decompress({
+      src: Path.resolve(__dirname + './../test-data/node-force-app.tar.gz'),
+      dest: Path.resolve(__dirname + './../temp/')
+    }, function (err) {
+      if (err) {
+        return console.error(err.stack);
+      }
+
+      done();
+
+    });
+  });
+
+  //Clear the temp files after the tests are done
+  after(function (done) {
+
+    Rimraf(Path.resolve(__dirname + './../temp'), function () {
+      done();
+    });
+
+  });
+
   describe('Testing class constructor', function () {
     it('Should take valid parameters and create a schemaGenerator object', function (done) {
       var exception = null;

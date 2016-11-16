@@ -12,7 +12,7 @@ var Rimraf = require('rimraf');
 
 // Reference our app files for easy reference in out gulp tasks
 var paths = {
-  tests: ['./test/lib/*.js'],
+  tests: ['./test/lib/schema-generator.js', './test/lib/endpoint-generator.js'],
   src: ['./index.js', './lib/**/*.js']
 };
 
@@ -30,27 +30,18 @@ gulp.task('tests', function (cb) {
 
     .on('finish', function () {
 
-      //Extract the full app structure temporarily
-      Targz.decompress({
-        src: './test/test-data/node-force-app.tar.gz',
-        dest: './test/temp/node-force-app'
-      }, function (err) {
-        if (err) {
-          return console.log(err.stack);
-        }
 
-        gulp.src(paths.tests)
-          .pipe(mocha({reporter: 'spec', timeout: 5000}))
-          .pipe(istanbul.writeReports()) // Creating the reports after tests run
-          .on('end', function () {
+      gulp.src(paths.tests)
+        .pipe(mocha({reporter: 'spec', timeout: 5000}))
+        .pipe(istanbul.writeReports()) // Creating the reports after tests run
+        .on('end', function () {
 
-            //Clean the temp app files
-            Rimraf('./test/temp', function () {
-              cb();
-              process.exit();
-            });
+          //Clean the temp app files
+          Rimraf('./test/temp', function () {
+            cb();
+            process.exit();
           });
-      });
+        });
 
     });
 });
