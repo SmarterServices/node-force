@@ -3,6 +3,10 @@
   "credentials": {
     "valid": {
       "database": {
+        "dialect": "postgres",
+        "databaseName": "asdfgh",
+        "userName": "qwerty",
+        "password": "abcdef1234567",
         "schema": "salesforcedev",
         "sortKey": "Id"
       },
@@ -34,7 +38,7 @@
   "endpointConfig": {
     "name": "account",
     "modelName": "account",
-    "path": "/applications/{applicationId}/accounts/{accountId}",
+    "path": "/applications/{applicationId}/accounts",
     "endPointTypes": [
       "add",
       "list",

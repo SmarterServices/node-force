@@ -9,6 +9,9 @@ var gulp = require('gulp'),
   jshint = require('gulp-jshint');
 var Targz = require('targz');
 var Rimraf = require('rimraf');
+var MockRequire = require('mock-require');
+
+var JsForceMock = require('./test/mocks/jsforce');
 
 // Reference our app files for easy reference in out gulp tasks
 var paths = {
@@ -23,6 +26,9 @@ gulp.task('default', ['jslint', 'tests', 'docs'], function (cb) {
 });
 
 gulp.task('tests', function (cb) {
+  //Use mock jsforce module instead of the original one
+  MockRequire('jsforce', JsForceMock);
+
   gulp.src(paths.src)
 
     .pipe(istanbul()) // Covering files
