@@ -16,7 +16,7 @@ class Generator {
   /**
    * Generate every structure of salesforce models. Models will be created from heroku connect api or from endpointConfig if given
    * @param path {String} Path to the root project directory
-   * @param credentials {Object|string} Path or value of the credential for
+   * @param credentials {Object|string} Absolute path or value of the credential for
    * heroku connect, salesForce and postgresDB
    * @param endpointConfig {Array|string|null} Configuration for endpoints
    * @param version {String|null} Version of API default is v1
@@ -79,7 +79,7 @@ class Generator {
 
       //When path to the credential is provided instead of the credential
       if (typeof  this.credentials === 'string') {
-        credentialPath = Path.resolve(this.libPath.base + '/' + this.credentials);
+        credentialPath = Path.resolve(this.credentials);
 
         this.credentials = require(credentialPath);
       }
@@ -108,7 +108,7 @@ class Generator {
     //If endpointConfig is a path to the file
     if (this.endpointConfig && (typeof this.endpointConfig === 'string')) {
       try {
-        var configPath = Path.join(this.libPath.base + '/' + this.endpointConfig);
+        var configPath = Path.resolve(this.endpointConfig);
         this.endpointConfig = require(configPath);
       } catch (ex) {
         console.error('Invalid path to endpointConfig! ' +

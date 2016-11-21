@@ -15,7 +15,9 @@ var JsForceMock = require('./test/mocks/jsforce');
 
 // Reference our app files for easy reference in out gulp tasks
 var paths = {
-  tests: ['./test/lib/schema-generator.js', './test/lib/endpoint-generator.js'],
+  tests: ['./test/lib/schema-generator.js',
+    './test/lib/endpoint-generator.js',
+    './test/lib/generator.js'],
   src: ['./index.js', './lib/**/*.js']
 };
 
