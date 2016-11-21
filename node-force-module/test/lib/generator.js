@@ -22,6 +22,8 @@ var tempAppPath = tempFilePath + '/node-force-app',
     mappings: tempAppPath + '/config/routes/schema/',
     handlers: tempAppPath + '/lib/handlers/',
     services: tempAppPath + '/lib/services/',
+    middleware: tempAppPath + '/lib/middleware/',
+    helpers: tempAppPath + '/lib/helpers/',
     schema: tempAppPath + '/lib/models/schema/',
     validations: tempAppPath + '/lib/models/validation/',
     models: tempAppPath + '/lib/models/',
@@ -97,10 +99,6 @@ describe('Testing schema generator class', function () {
 
     it('Should not take invalid path to endpoint config and configure to crete endpoint for all models', function () {
       var exception = null;
-      var tempLog = console.log;
-
-      //Turn off console log
-      console.log = function () {};
 
       try {
         var generator = new Generator(tempAppPath,
@@ -112,7 +110,6 @@ describe('Testing schema generator class', function () {
       }
 
       //re-enable console log
-      console.log = tempLog;
       expect(exception).to.equal(null);
       expect(generator).to.be.an('object');
       expect(generator).to.be.instanceOf(Generator);
@@ -233,4 +230,192 @@ describe('Testing schema generator class', function () {
 
   });
 
+  describe('Testing writeStaticFiles method', function () {
+    it('Generator should have a writeStaticFiles method', function () {
+      var exception = null;
+
+      try {
+        var generator = new Generator(tempAppPath,
+          generatorData.credentials.valid,
+          null,
+          'v1');
+
+      } catch (ex) {
+        exception = ex;
+      }
+
+      expect(exception).to.equal(null);
+      expect(generator).to.be.an('object');
+      expect(generator).to.be.instanceOf(Generator);
+      expect(generator.writeStaticFiles).to.not.equal(undefined);
+      expect(generator.writeStaticFiles).to.be.a('function');
+
+    });
+
+    it('Should generate the initial files to run the server', function () {
+      var exception = null;
+
+      try {
+        var generator = new Generator(tempAppPath,
+          generatorData.credentials.valid,
+          null,
+          'v1');
+
+      } catch (ex) {
+        exception = ex;
+      }
+
+      expect(exception).to.equal(null);
+
+      return generator
+        .writeStaticFiles()
+        .then(function () {
+
+          Fs.accessSync(tempAppPath + '/server.js', Fs.constants.F_OK);
+          Fs.accessSync(tempAppPath + '/config/endpoints.json', Fs.constants.F_OK);
+          Fs.accessSync(paths.route + 'routes.js', Fs.constants.F_OK);
+          Fs.accessSync(paths.handlers + 'heroku-connect.js', Fs.constants.F_OK);
+          Fs.accessSync(paths.services + 'heroku-connect.js', Fs.constants.F_OK);
+          Fs.accessSync(paths.middleware + 'heroku-connect.js', Fs.constants.F_OK);
+          Fs.accessSync(paths.middleware + 'salesforce.js', Fs.constants.F_OK);
+          Fs.accessSync(paths.route + 'schema/schema-provider.js', Fs.constants.F_OK);
+          Fs.accessSync(paths.helpers + 'sequelize.js', Fs.constants.F_OK);
+          Fs.accessSync(paths.helpers + 'utils.js', Fs.constants.F_OK);
+
+        });
+
+    });
+
+    it('Should override the server.js and endpoints.json file', function () {
+      var exception = null;
+      var testExport = 'module.exports = \'test\';';
+
+      try {
+        var generator = new Generator(tempAppPath,
+          generatorData.credentials.valid,
+          null,
+          'v1');
+
+      } catch (ex) {
+        exception = ex;
+      }
+
+      expect(exception).to.equal(null);
+
+      //Write temporary data to the files
+      return Utils
+        .batchWriteFile([{
+          path: tempAppPath + '/server.js',
+          data: testExport
+        }, {
+          path: tempAppPath + '/config/endpoints.json',
+          data: '{}'
+        }], {flag: 'w+'})
+        .then(function () {
+          return generator
+            .writeStaticFiles();
+        })
+
+        .then(function () {
+          var serverContent = require(tempAppPath + '/server.js');
+          var endpointConfig = require(tempAppPath + '/config/endpoints.json');
+
+          //Expect the contents not to be equal to the written data
+          expect(serverContent).to.not.equal('test');
+          expect(endpointConfig).to.not.equal({});
+
+        });
+
+    });
+
+
+    it('Should not override any files from the lib or templates directory', function () {
+      var exception = null;
+      var testExport = 'module.exports = \'test\';';
+
+      try {
+        var generator = new Generator(tempAppPath,
+          generatorData.credentials.valid,
+          null,
+          'v1');
+
+      } catch (ex) {
+        exception = ex;
+      }
+
+      expect(exception).to.equal(null);
+
+      //Write temporary data to the files
+      return Utils
+        .batchWriteFile([{
+          path: paths.route + '/routes.js',
+          data: testExport
+        }, {
+          path: paths.handlers + '/heroku-connect.js',
+          data: testExport
+        }, {
+          path: paths.services + '/heroku-connect.js',
+          data: testExport
+        }, {
+          path: paths.middleware + '/heroku-connect.js',
+          data: testExport
+        }, {
+          path: paths.middleware + '/salesforce.js',
+          data: testExport
+        }, {
+          path: paths.route + '/schema/schema-provider.js',
+          data: testExport
+        }, {
+          path: paths.helpers + '/sequelize.js',
+          data: testExport
+        }, {
+          path: paths.helpers + '/utils.js',
+          data: testExport
+        }, {
+          path: paths.templates + '/partials/pagination.js',
+          data: testExport
+        }], {flags: 'w+'})
+        .then(function () {
+          return generator
+            .writeStaticFiles();
+        })
+
+        .then(function () {
+
+          //Cleaning the cache if the files are already required
+          delete require.cache[require.resolve(paths.route + 'routes.js')];
+          delete require.cache[require.resolve(paths.handlers + 'heroku-connect.js')];
+          delete require.cache[require.resolve(paths.services + 'heroku-connect.js')];
+          delete require.cache[require.resolve(paths.middleware + 'heroku-connect.js')];
+          delete require.cache[require.resolve(paths.middleware + 'salesforce.js')];
+          delete require.cache[require.resolve(paths.route + 'schema/schema-provider.js')];
+          delete require.cache[require.resolve(paths.helpers + 'sequelize.js')];
+          delete require.cache[require.resolve(paths.helpers + 'utils.js')];
+          delete require.cache[require.resolve(paths.templates + 'partials/pagination.js')];
+
+          var route = require(paths.route + 'routes.js');
+          var handler = require(paths.handlers + 'heroku-connect.js');
+          var service = require(paths.services + 'heroku-connect.js');
+          var herokuMiddleware = require(paths.middleware + 'heroku-connect.js');
+          var salesforceMiddleware = require(paths.middleware + 'salesforce.js');
+          var schemaProvider = require(paths.route + 'schema/schema-provider.js');
+          var sequelizeHelper = require(paths.helpers + 'sequelize.js');
+          var utils = require(paths.helpers + 'utils.js');
+          var pagination = require(paths.templates + 'partials/pagination.js');
+
+          //Expect the contents not to be equal to the written data
+          expect(route).to.equal('test');
+          expect(handler).to.equal('test');
+          expect(service).to.equal('test');
+          expect(herokuMiddleware).to.equal('test');
+          expect(salesforceMiddleware).to.equal('test');
+          expect(schemaProvider).to.equal('test');
+          expect(sequelizeHelper).to.equal('test');
+          expect(utils).to.equal('test');
+          expect(pagination).to.equal('test');
+
+        });
+
+    });
+  });
 });
