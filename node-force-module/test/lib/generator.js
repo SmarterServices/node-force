@@ -5,7 +5,9 @@ var Path = require('path');
 var expect = require('chai').expect;
 var Targz = require('targz');
 var Rimraf = require('rimraf');
+var Nock = require('nock');
 
+var mockData = require('./../test-data/jsforce-mock.json');
 var SsNodeForce = require('./../../index'),
   Generator = SsNodeForce.Generator;
 
@@ -13,6 +15,18 @@ var generatorData = require('./../test-data/generator.json');
 var Utils = require('./../../lib/helpers/utils');
 
 var tempFilePath = Path.resolve(__dirname + './../temp');
+
+var mockHerokuServer = function () {
+  //Create mock heroku server
+  Nock('https://connect-us.heroku.com',
+    {
+      reqheaders: {
+        Authorization: 'Bearer 29f989df-124a-1244-ab24-40acb97782ed'
+      }
+    })
+    .get('/api/v3/connections/29f989df-124a-1244-ab24-40acb97782ed?deep=true')
+    .reply(200, mockData.herokuMapping);
+};
 
 var tempAppPath = tempFilePath + '/node-force-app',
   paths = {
@@ -417,5 +431,253 @@ describe('Testing schema generator class', function () {
         });
 
     });
+  });
+
+  describe('Testing generateEndpoints method', function () {
+    before(function (done) {
+
+      var generator = new Generator(tempAppPath,
+        generatorData.credentials.valid,
+        null,
+        'v1');
+
+      generator
+        .writeStaticFiles()
+        .then(function () {
+          done();
+        });
+    });
+
+    it('Generator should contain generateEndpoints method', function () {
+      var exception = null;
+
+      try {
+        var generator = new Generator(tempAppPath,
+          generatorData.credentials.valid,
+          null,
+          'v1');
+
+      } catch (ex) {
+        exception = ex;
+      }
+
+      expect(exception).to.equal(null);
+      expect(generator).to.be.an('object');
+      expect(generator).to.be.instanceOf(Generator);
+      expect(generator.generateEndpoints).to.not.equal(undefined);
+      expect(generator.generateEndpoints).to.be.a('function');
+
+    });
+
+
+    it('Should generate route, handler, services, models and schemas to create the endpoint', function () {
+      var exception = null;
+
+      try {
+        var generator = new Generator(tempAppPath,
+          generatorData.credentials.valid,
+          generatorData.endpointConfigs,
+          'v1');
+
+      } catch (ex) {
+        exception = ex;
+      }
+
+      expect(exception).to.equal(null);
+
+      return generator
+        .generateEndpoints()
+        .then(function () {
+          var jsFileName = generatorData.endpointConfigs[0].name + '.js',
+            jsonFileName = generatorData.endpointConfigs[0].name + '.json';
+
+          //Route file should be created
+          Fs.accessSync(paths.route + jsFileName, Fs.constants.F_OK);
+
+          //Joi schema file should be created
+          Fs.accessSync(paths.joiSchema + jsFileName, Fs.constants.F_OK);
+
+          //Mapping file should be created
+          Fs.accessSync(paths.mappings + jsonFileName, Fs.constants.F_OK);
+
+          //Handler file should be created
+          Fs.accessSync(paths.handlers + jsFileName, Fs.constants.F_OK);
+
+          //Service file should be created
+          Fs.accessSync(paths.services + jsFileName, Fs.constants.F_OK);
+
+          //Sequelize model file should be created
+          Fs.accessSync(paths.models + jsFileName, Fs.constants.F_OK);
+
+
+          //Sequelize schema file should be created
+          Fs.accessSync(paths.schema + jsFileName, Fs.constants.F_OK);
+
+          //Sequelize validation file should be created
+          Fs.accessSync(paths.validations + jsFileName, Fs.constants.F_OK);
+
+          //Template file should be created
+          Fs.accessSync(paths.templates + jsFileName, Fs.constants.F_OK);
+
+        });
+
+    });
+
+
+    it('Should generate endpoints for all mapped objects if endpoint config is not provided', function () {
+      var exception = null;
+
+      try {
+        var generator = new Generator(tempAppPath,
+          generatorData.credentials.valid,
+          null,
+          'v1');
+
+      } catch (ex) {
+        exception = ex;
+      }
+
+      expect(exception).to.equal(null);
+
+      //Create three mock request for:
+      //Get all available mappings, get mapping for account & contact
+      mockHerokuServer();
+      mockHerokuServer();
+      mockHerokuServer();
+
+      return generator
+        .generateEndpoints()
+        .then(function () {
+          //Route file for each available map should be created
+          Fs.accessSync(paths.route + 'account.js', Fs.constants.F_OK);
+          Fs.accessSync(paths.route + 'contact.js', Fs.constants.F_OK);
+        });
+
+    });
+
+
+    it('Should override the joi schema, sequelize schema & validation files', function () {
+      var exportNullTemplate = 'module.exports = null';
+      var exception = null;
+      var jsFileName = generatorData.endpointConfigs[0].name + '.js';
+
+      try {
+        var generator = new Generator(tempAppPath,
+          generatorData.credentials.valid,
+          generatorData.endpointConfigs,
+          'v1');
+      } catch (ex) {
+        exception = ex;
+      }
+
+      expect(exception).to.equal(null);
+      expect(generator).to.be.instanceof(Generator);
+
+      mockHerokuServer();
+
+      return Utils.batchWriteFile([{
+        path: paths.joiSchema + jsFileName,
+        data: exportNullTemplate
+      },
+        {
+          path: paths.schema + jsFileName,
+          data: exportNullTemplate
+        },
+        {
+          path: paths.validations + jsFileName,
+          data: exportNullTemplate
+        }], {flags: 'w+'})
+        .then(function () {
+
+          return generator
+            .generateEndpoints();
+        })
+        .then(function () {
+          process.env.NODE_CONFIG_DIR = tempAppPath + '/config';
+
+          var joiSchema = require(paths.joiSchema + jsFileName);
+          var sequelizeSchema = require(paths.schema + jsFileName);
+          var sequelizeValidation = require(paths.validations + jsFileName);
+
+          expect(joiSchema).to.not.equal(null);
+          expect(sequelizeSchema).to.not.equal(null);
+          expect(sequelizeValidation).to.not.equal(null);
+        });
+
+    });
+
+
+    it('Should not override the route, handler, service, template and sequelize model files', function () {
+      var exportNullTemplate = 'module.exports = null';
+      var exception = null;
+      var jsFileName = generatorData.endpointConfigs[0].name + '.js';
+
+      try {
+        var generator = new Generator(tempAppPath,
+          generatorData.credentials.valid,
+          generatorData.endpointConfigs,
+          'v1');
+      } catch (ex) {
+        exception = ex;
+      }
+
+      expect(exception).to.equal(null);
+      expect(generator).to.be.instanceof(Generator);
+
+      mockHerokuServer();
+
+      //Export null from all files that are not going to be changed
+      return Utils.batchWriteFile([{
+          path: paths.route + jsFileName,
+          data: exportNullTemplate
+        },
+          {
+            path: paths.handlers + jsFileName,
+            data: exportNullTemplate
+          },
+          {
+            path: paths.services + jsFileName,
+            data: exportNullTemplate
+          },
+          {
+            path: paths.models + jsFileName,
+            data: exportNullTemplate
+          },
+          {
+            path: paths.templates + jsFileName,
+            data: exportNullTemplate
+          }],
+        {flag: 'w+'})
+        .then(function () {
+
+          //Delete the cached files
+          delete require.cache[require.resolve(paths.route + jsFileName)];
+          delete require.cache[require.resolve(paths.handlers + jsFileName)];
+          delete require.cache[require.resolve(paths.services + jsFileName)];
+          delete require.cache[require.resolve(paths.models + jsFileName)];
+          delete require.cache[require.resolve(paths.templates + jsFileName)];
+
+          return generator
+            .generateEndpoints();
+        })
+        .then(function () {
+          process.env.NODE_CONFIG_DIR = tempAppPath + '/config';
+
+          var route = require(paths.route + jsFileName);
+          var handler = require(paths.handlers + jsFileName);
+          var service = require(paths.services + jsFileName);
+          var model = require(paths.models + jsFileName);
+          var template = require(paths.templates + jsFileName);
+
+          //Check if the files are unchanged
+          expect(route).to.equal(null);
+          expect(handler).to.equal(null);
+          expect(service).to.equal(null);
+          expect(model).to.equal(null);
+          expect(template).to.equal(null);
+        });
+
+    });
+
   });
 });
