@@ -8,6 +8,9 @@ A node module to generate source code for `hapi.js` endpoints to run CRUD operat
 * run   `generator.generate()` as detailed below
 * run `npm install` (again as generate has modified the package.json file)
 * Run the main service in the port as hapi server
+### Run unit test
+
+To run the unit tests from your project directory open up a terminal and run the command `gulp tests`.
 
 ---
 ### Index:
