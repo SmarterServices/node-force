@@ -111,7 +111,7 @@ class Generator {
         var configPath = Path.resolve(this.endpointConfig);
         this.endpointConfig = require(configPath);
       } catch (ex) {
-        console.error('Invalid path to endpointConfig! ' +
+        console.log('Invalid path to endpointConfig! ' +
           'Creating endpoints for all models');
         this.endpointConfig = null;
       }
