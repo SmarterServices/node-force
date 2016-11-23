@@ -166,7 +166,7 @@ describe('Testing schema generator class', function () {
         exception = ex;
       }
 
-      !expect(exception).to.not.equal(null);
+      expect(exception).to.not.equal(null);
       expect(exception instanceof Error).to.equal(true);
       done();
     });
@@ -237,7 +237,7 @@ describe('Testing schema generator class', function () {
 
     });
 
-    it('Should create joi object without any property if heroku mapping is not provided', function () {
+    it('Should create joi object without any property if heroku mapping is not provided in constructor', function () {
       var exception = null;
       var config = {
         forceObject: schemaData.config.forceObject,
@@ -281,7 +281,7 @@ describe('Testing schema generator class', function () {
     });
 
 
-    it('Should create joi object without any property if salesForceObject is not provided', function () {
+    it('Should create joi object without any property if salesForceObject is not provided in constructor', function () {
       var exception = null;
       var config = {
         herokuMapping: schemaData.config.herokuMapping,
@@ -369,6 +369,7 @@ describe('Testing schema generator class', function () {
 
               //Should have key isRemoved from the mapping
               expect(schemaStructure.properties.isRemoved).not.to.equal(undefined);
+              //Should have Industry as same as saleforce because for this property there is no mapping
               expect(schemaStructure.properties.Industry).not.to.equal(undefined);
 
             });
@@ -551,7 +552,6 @@ describe('Testing schema generator class', function () {
         })
     });
 
-
     it('Sequelize schema should contain no property definition if there is no synced property (Empty forceObject)', function () {
       var exception = null;
       var config = {
@@ -689,9 +689,9 @@ describe('Testing schema generator class', function () {
       expect(exception).to.equal(null);
 
 
-      //Count the active rules
+      //Count the inactive rules
       salesforceValidation.map(function (rule) {
-        if (rule.active === 'true') {
+        if (rule.active === 'false') {
           inactiveRules++;
         }
 
