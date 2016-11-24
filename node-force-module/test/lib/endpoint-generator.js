@@ -578,7 +578,6 @@ describe('Testing EndpointGenerator class', function () {
 
     });
 
-
   });
 
 

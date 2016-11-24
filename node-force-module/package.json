@@ -26,7 +26,7 @@
     "gulp-jslint": "^1.0.5",
     "gulp-mocha": "^3.0.1",
     "gulp-run": "^1.7.1",
-    "hapi": "^15.2.0",
+    "hapi": "^15.1.1",
     "joi-to-json-schema": "^2.3.0",
     "jshint": "^2.9.4",
     "mock-require": "^2.0.0",
@@ -38,6 +38,14 @@
     "supertest": "^2.0.1",
     "targz": "^1.0.1",
     "vision": "^4.1.0",
-    "ss-node-force": "./"
+    "ss-node-force": "./",
+    "boom": "^4.1.0",
+    "config": "^1.16.0",
+    "hapi-swagger": "^7.3.0",
+    "inert": "^3.0.1",
+    "joi": "^9.1.1",
+    "jsforce": "^1.7.0",
+    "lodash": "^4.16.4",
+    "moment": "2.10.6"
   }
 }
