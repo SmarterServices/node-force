@@ -41,7 +41,10 @@ var tempAppPath = tempFilePath + '/node-force-app',
     schema: tempAppPath + '/lib/models/schema/',
     validations: tempAppPath + '/lib/models/validation/',
     models: tempAppPath + '/lib/models/',
-    templates: tempAppPath + '/templates/partials/'
+    templates: tempAppPath + '/templates/partials/',
+    modelMapping: tempAppPath + '/config/model-mapping.json',
+    package: tempAppPath + '/package.json',
+    preInstall: tempAppPath + '/pre-install.js'
   };
 
 
@@ -110,8 +113,7 @@ describe('Testing schema generator class', function () {
 
     });
 
-
-    it('Should not take invalid path to endpoint config and configure to crete endpoint for all models', function () {
+    it('Should not take invalid path to endpoint config and configure to create endpoint for all models', function () {
       var exception = null;
 
       try {
@@ -131,7 +133,6 @@ describe('Testing schema generator class', function () {
 
     });
 
-
     it('Should create generator object only with valid credential and basePath', function () {
       var exception = null;
 
@@ -150,7 +151,6 @@ describe('Testing schema generator class', function () {
       expect(generator.endpointConfig).to.equal(undefined);
 
     });
-
 
     it('Should not take credential without database information and throw and exception', function () {
       var exception = null;
@@ -186,7 +186,6 @@ describe('Testing schema generator class', function () {
 
     });
 
-
     it('Should not take credential without valid heroku credential and throw and exception', function () {
       var exception = null;
 
@@ -202,7 +201,6 @@ describe('Testing schema generator class', function () {
       expect(exception).to.be.instanceOf(Error);
 
     });
-
 
     it('Should take valid path to credentials and create generator object', function () {
       var exception = null;
@@ -222,7 +220,6 @@ describe('Testing schema generator class', function () {
       expect(generator).to.be.instanceOf(Generator);
 
     });
-
 
     it('Should throw and exception if credential is not provided', function () {
       var exception = null;
@@ -341,7 +338,6 @@ describe('Testing schema generator class', function () {
         });
 
     });
-
 
     it('Should not override any files from the lib or templates directory', function () {
       var exception = null;
@@ -469,7 +465,6 @@ describe('Testing schema generator class', function () {
 
     });
 
-
     it('Should generate route, handler, services, models and schemas to create the endpoint', function () {
       var exception = null;
 
@@ -523,7 +518,6 @@ describe('Testing schema generator class', function () {
 
     });
 
-
     it('Should generate endpoints for all mapped objects if endpoint config is not provided', function () {
       var exception = null;
 
@@ -554,7 +548,6 @@ describe('Testing schema generator class', function () {
         });
 
     });
-
 
     it('Should override the joi schema, sequelize schema & validation files', function () {
       var exportNullTemplate = 'module.exports = null';
@@ -605,7 +598,6 @@ describe('Testing schema generator class', function () {
         });
 
     });
-
 
     it('Should not override the route, handler, service, template and sequelize model files', function () {
       var exportNullTemplate = 'module.exports = null';
@@ -679,5 +671,213 @@ describe('Testing schema generator class', function () {
 
     });
 
+    it('Should generate model mapping according to given endpoint config, update package json file for pre-install', function () {
+      var exception = null;
+
+      try {
+        var generator = new Generator(tempAppPath,
+          generatorData.credentials.valid,
+          null,
+          'v1');
+
+      } catch (ex) {
+        exception = ex;
+      }
+
+      expect(exception).to.equal(null);
+
+      //Create three mock request for:
+      //Get all available mappings, get mapping for account & contact
+      mockHerokuServer();
+      mockHerokuServer();
+      mockHerokuServer();
+
+      //remove mapping if exists
+      Fs.unlinkSync(paths.modelMapping);
+
+      return generator
+        .generateEndpoints()
+        .then(function () {
+          //model map should be created
+          Fs.accessSync(paths.modelMapping, Fs.constants.F_OK);
+
+          //package json should be updated
+          delete require.cache[require.resolve(paths.package)];
+
+          var packageJson = require(paths.package);
+
+          if (!packageJson.scripts.preinstall) {
+            throw ('package.json is not updated for pre-install command!')
+          }
+        });
+    });
+
+    it('Should add pre-install script if not exists', function () {
+      var exception = null;
+
+      try {
+        var generator = new Generator(tempAppPath,
+          generatorData.credentials.valid,
+          null,
+          'v1');
+
+      } catch (ex) {
+        exception = ex;
+      }
+
+      expect(exception).to.equal(null);
+
+      //Create three mock request for:
+      //Get all available mappings, get mapping for account & contact
+      mockHerokuServer();
+      mockHerokuServer();
+      mockHerokuServer();
+
+      //remove mapping if exists
+      Fs.unlinkSync(paths.preInstall);
+
+      return generator
+        .generateEndpoints()
+        .then(function () {
+          //pre install script should be created
+          Fs.accessSync(paths.preInstall, Fs.constants.F_OK);
+        });
+
+    });
+  });
+
+  describe('Testing generate method', function () {
+    it('Generator should contain generate method', function () {
+      var exception = null;
+
+      try {
+        var generator = new Generator(tempAppPath,
+          generatorData.credentials.valid,
+          null,
+          'v1');
+
+      } catch (ex) {
+        exception = ex;
+      }
+
+      expect(exception).to.equal(null);
+      expect(generator).to.be.an('object');
+      expect(generator).to.be.instanceOf(Generator);
+      expect(generator.generate).to.not.equal(undefined);
+      expect(generator.generate).to.be.a('function');
+
+    });
+
+    it('Should generate endpoints for all mapped objects if endpoint config is not provided', function () {
+      var exception = null;
+
+      try {
+        var generator = new Generator(tempAppPath,
+          generatorData.credentials.valid,
+          null,
+          'v1');
+
+      } catch (ex) {
+        exception = ex;
+      }
+
+      expect(exception).to.equal(null);
+
+      //Create three mock request for:
+      //Get all available mappings, get mapping for account & contact
+      mockHerokuServer();
+      mockHerokuServer();
+      mockHerokuServer();
+
+      return generator
+        .generate()
+        .then(function () {
+          //Route file for each available map should be created
+          Fs.accessSync(paths.route + 'account.js', Fs.constants.F_OK);
+          Fs.accessSync(paths.route + 'contact.js', Fs.constants.F_OK);
+        });
+
+    });
+
+    it('Should generate endpoints only given objects if endpoint config is provided', function () {
+      var exception = null;
+      var endpointConfig = [
+          {
+            modelName: 'account',
+            path: '/applications/{applicationId}/accounts',
+            endPointTypes: [
+              'add',
+              'list',
+              'get',
+              'update',
+              'delete'
+            ]
+          }
+        ];
+
+      try {
+        //only account object is given in endpoint config
+        var generator = new Generator(tempAppPath,
+          generatorData.credentials.valid,
+          endpointConfig,
+          'v1');
+
+      } catch (ex) {
+        exception = ex;
+      }
+
+      expect(exception).to.equal(null);
+
+      //Create three mock request for:
+      //Get all available mappings, get mapping for account & contact
+      mockHerokuServer();
+      mockHerokuServer();
+      mockHerokuServer();
+
+
+      //remove contact file if exists
+      Fs.unlinkSync(paths.route + 'contact.js');
+
+      return generator
+        .generate()
+        .then(function () {
+          //Route file for each available map should be created
+          Fs.accessSync(paths.route + 'account.js', Fs.constants.F_OK);
+
+          expect(Fs.existsSync(paths.route + 'contact.js')).to.equal(false);
+        });
+
+    });
+
+    it('Should return error if endpoint config is provided in wrong format', function () {
+      var exception = null;
+      //provide as object rather than array
+      var endpointConfig = {
+          modelName: 'account',
+          path: '/applications/{applicationId}/accounts',
+          endPointTypes: [
+            'add',
+            'list',
+            'get',
+            'update',
+            'delete'
+          ]
+        }
+      ;
+
+      try {
+        //only account object is given in endpoint config
+        var generator = new Generator(tempAppPath,
+          generatorData.credentials.valid,
+          endpointConfig,
+          'v1');
+
+      } catch (ex) {
+        exception = ex;
+      }
+
+      expect(exception).to.not.equal(null);
+
+    });
   });
 });

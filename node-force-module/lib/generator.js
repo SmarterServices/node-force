@@ -116,6 +116,8 @@ class Generator {
         this.endpointConfig = null;
       }
 
+    } else if (this.endpointConfig && !Array.isArray(this.endpointConfig)) {
+      throw('Configuration is not in supported format!');
     }
 
   }
@@ -262,6 +264,10 @@ class Generator {
       _this._getEndpointConfig()
         .then(function onData(configs) {
           var promises = [];
+
+          if(!Array.isArray(configs)) {
+            return reject('Configuration could not be determined!')
+          }
 
           //Generate endpoint for each models
           configs.forEach(function forEachMap(config) {

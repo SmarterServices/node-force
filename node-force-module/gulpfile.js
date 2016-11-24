@@ -17,7 +17,8 @@ var JsForceMock = require('./test/mocks/jsforce');
 var paths = {
   tests: ['./test/lib/schema-generator.js',
     './test/lib/endpoint-generator.js',
-    './test/lib/generator.js'],
+    './test/lib/generator.js'
+    ],
   src: ['./index.js', './lib/**/*.js']
 };
 
