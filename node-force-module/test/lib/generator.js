@@ -282,16 +282,16 @@ describe('Testing schema generator class', function () {
         .writeStaticFiles()
         .then(function () {
 
-          Fs.accessSync(tempAppPath + '/server.js', Fs.constants.F_OK);
-          Fs.accessSync(tempAppPath + '/config/endpoints.json', Fs.constants.F_OK);
-          Fs.accessSync(paths.route + 'routes.js', Fs.constants.F_OK);
-          Fs.accessSync(paths.handlers + 'heroku-connect.js', Fs.constants.F_OK);
-          Fs.accessSync(paths.services + 'heroku-connect.js', Fs.constants.F_OK);
-          Fs.accessSync(paths.middleware + 'heroku-connect.js', Fs.constants.F_OK);
-          Fs.accessSync(paths.middleware + 'salesforce.js', Fs.constants.F_OK);
-          Fs.accessSync(paths.route + 'schema/schema-provider.js', Fs.constants.F_OK);
-          Fs.accessSync(paths.helpers + 'sequelize.js', Fs.constants.F_OK);
-          Fs.accessSync(paths.helpers + 'utils.js', Fs.constants.F_OK);
+          Fs.accessSync(tempAppPath + '/server.js', Fs.F_OK);
+          Fs.accessSync(tempAppPath + '/config/endpoints.json', Fs.F_OK);
+          Fs.accessSync(paths.route + 'routes.js', Fs.F_OK);
+          Fs.accessSync(paths.handlers + 'heroku-connect.js', Fs.F_OK);
+          Fs.accessSync(paths.services + 'heroku-connect.js', Fs.F_OK);
+          Fs.accessSync(paths.middleware + 'heroku-connect.js', Fs.F_OK);
+          Fs.accessSync(paths.middleware + 'salesforce.js', Fs.F_OK);
+          Fs.accessSync(paths.route + 'schema/schema-provider.js', Fs.F_OK);
+          Fs.accessSync(paths.helpers + 'sequelize.js', Fs.F_OK);
+          Fs.accessSync(paths.helpers + 'utils.js', Fs.F_OK);
 
         });
 
@@ -487,32 +487,32 @@ describe('Testing schema generator class', function () {
             jsonFileName = generatorData.endpointConfigs[0].name + '.json';
 
           //Route file should be created
-          Fs.accessSync(paths.route + jsFileName, Fs.constants.F_OK);
+          Fs.accessSync(paths.route + jsFileName, Fs.F_OK);
 
           //Joi schema file should be created
-          Fs.accessSync(paths.joiSchema + jsFileName, Fs.constants.F_OK);
+          Fs.accessSync(paths.joiSchema + jsFileName, Fs.F_OK);
 
           //Mapping file should be created
-          Fs.accessSync(paths.mappings + jsonFileName, Fs.constants.F_OK);
+          Fs.accessSync(paths.mappings + jsonFileName, Fs.F_OK);
 
           //Handler file should be created
-          Fs.accessSync(paths.handlers + jsFileName, Fs.constants.F_OK);
+          Fs.accessSync(paths.handlers + jsFileName, Fs.F_OK);
 
           //Service file should be created
-          Fs.accessSync(paths.services + jsFileName, Fs.constants.F_OK);
+          Fs.accessSync(paths.services + jsFileName, Fs.F_OK);
 
           //Sequelize model file should be created
-          Fs.accessSync(paths.models + jsFileName, Fs.constants.F_OK);
+          Fs.accessSync(paths.models + jsFileName, Fs.F_OK);
 
 
           //Sequelize schema file should be created
-          Fs.accessSync(paths.schema + jsFileName, Fs.constants.F_OK);
+          Fs.accessSync(paths.schema + jsFileName, Fs.F_OK);
 
           //Sequelize validation file should be created
-          Fs.accessSync(paths.validations + jsFileName, Fs.constants.F_OK);
+          Fs.accessSync(paths.validations + jsFileName, Fs.F_OK);
 
           //Template file should be created
-          Fs.accessSync(paths.templates + jsFileName, Fs.constants.F_OK);
+          Fs.accessSync(paths.templates + jsFileName, Fs.F_OK);
 
         });
 
@@ -543,8 +543,8 @@ describe('Testing schema generator class', function () {
         .generateEndpoints()
         .then(function () {
           //Route file for each available map should be created
-          Fs.accessSync(paths.route + 'account.js', Fs.constants.F_OK);
-          Fs.accessSync(paths.route + 'contact.js', Fs.constants.F_OK);
+          Fs.accessSync(paths.route + 'account.js', Fs.F_OK);
+          Fs.accessSync(paths.route + 'contact.js', Fs.F_OK);
         });
 
     });
@@ -699,7 +699,7 @@ describe('Testing schema generator class', function () {
         .generateEndpoints()
         .then(function () {
           //model map should be created
-          Fs.accessSync(paths.modelMapping, Fs.constants.F_OK);
+          Fs.accessSync(paths.modelMapping, Fs.F_OK);
 
           //package json should be updated
           delete require.cache[require.resolve(paths.package)];
@@ -740,7 +740,7 @@ describe('Testing schema generator class', function () {
         .generateEndpoints()
         .then(function () {
           //pre install script should be created
-          Fs.accessSync(paths.preInstall, Fs.constants.F_OK);
+          Fs.accessSync(paths.preInstall, Fs.F_OK);
         });
 
     });
@@ -793,8 +793,8 @@ describe('Testing schema generator class', function () {
         .generate()
         .then(function () {
           //Route file for each available map should be created
-          Fs.accessSync(paths.route + 'account.js', Fs.constants.F_OK);
-          Fs.accessSync(paths.route + 'contact.js', Fs.constants.F_OK);
+          Fs.accessSync(paths.route + 'account.js', Fs.F_OK);
+          Fs.accessSync(paths.route + 'contact.js', Fs.F_OK);
         });
 
     });
@@ -842,7 +842,7 @@ describe('Testing schema generator class', function () {
         .generate()
         .then(function () {
           //Route file for each available map should be created
-          Fs.accessSync(paths.route + 'account.js', Fs.constants.F_OK);
+          Fs.accessSync(paths.route + 'account.js', Fs.F_OK);
 
           expect(Fs.existsSync(paths.route + 'contact.js')).to.equal(false);
         });

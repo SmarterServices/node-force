@@ -338,32 +338,32 @@ describe('Testing EndpointGenerator class', function () {
         .then(function () {
 
           //Route file should be created
-          Fs.accessSync(filePaths.route, Fs.constants.F_OK);
+          Fs.accessSync(filePaths.route, Fs.F_OK);
 
           //Joi schema file should be created
-          Fs.accessSync(filePaths.joiSchema, Fs.constants.F_OK);
+          Fs.accessSync(filePaths.joiSchema, Fs.F_OK);
 
           //Mapping file should be created
-          Fs.accessSync(filePaths.mapping, Fs.constants.F_OK);
+          Fs.accessSync(filePaths.mapping, Fs.F_OK);
 
           //Handler file should be created
-          Fs.accessSync(filePaths.handler, Fs.constants.F_OK);
+          Fs.accessSync(filePaths.handler, Fs.F_OK);
 
           //Service file should be created
-          Fs.accessSync(filePaths.service, Fs.constants.F_OK);
+          Fs.accessSync(filePaths.service, Fs.F_OK);
 
           //Sequelize model file should be created
-          Fs.accessSync(filePaths.model, Fs.constants.F_OK);
+          Fs.accessSync(filePaths.model, Fs.F_OK);
 
 
           //Sequelize schema file should be created
-          Fs.accessSync(filePaths.schema, Fs.constants.F_OK);
+          Fs.accessSync(filePaths.schema, Fs.F_OK);
 
           //Sequelize validation file should be created
-          Fs.accessSync(filePaths.validation, Fs.constants.F_OK);
+          Fs.accessSync(filePaths.validation, Fs.F_OK);
 
           //Template file should be created
-          Fs.accessSync(filePaths.template, Fs.constants.F_OK);
+          Fs.accessSync(filePaths.template, Fs.F_OK);
         });
 
     });
