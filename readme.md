@@ -7,6 +7,7 @@ Node-Force
 	* [Generate CRUD Endpoint](#generate-crud-endpoint)
 	* [Run server](#run-server)
 * Endpoints
+	* [GraphQL](#graphql)
 	* Sync
 		* [ Sync model(s)](#sync-models)
 		* [ Sync all models](#sync-all-models)	
@@ -35,7 +36,108 @@ To crate a basic CRUD endpoint:
 ## Run server
 From the project root directory run `npm install` to install all the dependencies. Then run `npm start` to start the server.
 
+## GraphQL
+### `POST` /graphql
 
+#### Add data:
+To insert new `contact` and `account` a `mutation` query needs to be sent. For that `query param` will be as following:
+
+```
+mutation {
+  contact (
+    isDeleted: false
+    isEmailBounced:true
+    name: "Darth Vador"
+    lastName: "Vador"
+    email: "darth@starwars.infinity"
+    phone: "+123457"
+    ownerId: "00528000003yr8iAAA"
+    createdDate: "2016-09-21T03:56:39.000Z"
+    createdById: "00528000003yr8iAAA"
+    lastModifiedById: "00528000003yr8iAAA"
+    lastModifiedDate: "2016-09-21T03:56:39.000Z"
+    systemModstamp: "2016-09-21T03:56:39.000Z"
+    account:{
+      isDeleted: false
+      name: "napstar"
+      ownerId: "00528000003yr8iAAA"
+      createdDate: "2016-09-21T03:56:39.000Z"
+      createdById: "00528000003yr8iAAA"
+      lastModifiedById: "00528000003yr8iAAA"
+      lastModifiedDate: "2016-09-21T03:56:39.000Z"
+      systemModstamp: "2016-09-21T03:56:39.000Z"
+    }
+
+  ) {
+    id
+    phone
+    email
+    account{
+      id
+      name
+      masterRecordId
+    }
+  }
+}
+```
+
+Example return: 
+
+```
+{
+  "data": {
+    "contact": {
+      "id": 72,
+      "phone": "+123457",
+      "email": "darth@starwars.infinity",
+      "account": {
+        "id": 238,
+        "name": "napstar",
+        "masterRecordId": null
+      }
+    }
+  }
+}
+```
+
+
+#### Get data:
+To retrieve existing data from the server the `query param` will be as follows
+
+```
+{
+  contact(id: 6){
+    id
+    phone
+    email
+    account{
+      id
+      name
+      isDeleted
+    }
+  }
+}
+```
+
+Example return for the request will be: 
+```JSON
+{
+  "data": {
+    "contact": {
+      "id": 69,
+      "phone": "+123457",
+      "email": "darth@starwars.infinity",
+      "account": {
+        "id": 235,
+        "name": "napstar",
+        "isDeleted": false
+      }
+    }
+  }
+}
+```
+
+---
 ## Sync model(s)
 ### `PUT` /v1/applications/{applicationId}/sync
 Syncs the provided models from salesforce. 

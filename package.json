@@ -15,7 +15,7 @@
     "async": "^1.4.2",
     "boom": "^4.1.0",
     "config": "^1.16.0",
-    "graphql": "^0.7.2",
+    "graphql": "^0.6.2",
     "hapi": "^15.1.1",
     "hapi-graphql": "^1.0.1",
     "hapi-swagger": "^7.3.0",
@@ -25,6 +25,7 @@
     "lodash": "^4.16.4",
     "moment": "2.10.6",
     "node-fetch": "^1.6.3",
+    "sequelize": "^3.27.0",
     "vision": "^4.1.0"
   },
   "devDependencies": {
