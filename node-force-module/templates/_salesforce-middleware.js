@@ -9,7 +9,8 @@ var forceObjectProvider = {
   describeForceObject: function (objectName) {
 
     return new Promise(function describePromise(resolve, reject) {
-      var conn = new jsforce.Connection();
+      let loginUrl = Config.salesforce.loginUrl;
+      let conn = new jsforce.Connection({loginUrl});
 
       conn.login(salesforceConfig.userName,
         salesforceConfig.password,
@@ -32,7 +33,8 @@ var forceObjectProvider = {
 
   getValidationRule: function (forceObjectName) {
     return new Promise(function getRulePromise(resolve, reject) {
-      var conn = new jsforce.Connection();
+      let loginUrl = Config.salesforce.loginUrl;
+      let conn = new jsforce.Connection({loginUrl});
       conn.login(salesforceConfig.userName,
         salesforceConfig.password,
         function (err) {
