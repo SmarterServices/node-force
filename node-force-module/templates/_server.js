@@ -12,7 +12,7 @@ global.server = new Hapi.Server();
 
 server.connection(config);
 
-var routeFiles = Fs.readdirSync('./config/routes');
+var routeFiles = Fs.readdirSync(__dirname + '/config/routes');
 
 routeFiles.forEach(function forEachRouteFile(routeFile) {
 

@@ -10,7 +10,8 @@
   },
   "salesforce": {
     "userName": "tanzir@enosisbd.com",
-    "password": "Enosis123urVm73Rsyd0KR5TaFq1iqRj8q"
+    "password": "Enosis12345V6zTq7qtpcRybe7vqfYBVLq",
+    "loginUrl": "https://test.salesforce.com"
   },
   "herokuConnect": {
     "host": "connect-us.heroku.com",

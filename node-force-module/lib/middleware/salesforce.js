@@ -1,13 +1,15 @@
 'use strict';
 
 var jsforce = require('jsforce');
+const config = require('config');
 
 
 var forceObjectProvider = {
   describeForceObject: function (objectName, salesforceConfig) {
 
     return new Promise(function describePromise(resolve, reject) {
-      var conn = new jsforce.Connection();
+      let loginUrl = config.salesforce.loginUrl;
+      let conn = new jsforce.Connection({loginUrl});
 
       conn.login(salesforceConfig.userName,
         salesforceConfig.password,
@@ -30,7 +32,8 @@ var forceObjectProvider = {
 
   getValidationRule: function (forceObjectName, salesforceConfig) {
     return new Promise(function getRulePromise(resolve, reject) {
-      var conn = new jsforce.Connection();
+      let loginUrl = config.salesforce.loginUrl;
+      let conn = new jsforce.Connection({loginUrl});
       conn.login(salesforceConfig.userName,
         salesforceConfig.password,
         function (err) {

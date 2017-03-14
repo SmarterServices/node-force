@@ -5,9 +5,11 @@ A node module to generate source code for `hapi.js` endpoints to run CRUD operat
 
 ### Instruction to run 1st time:
 * run `npm install`
-* run   `generator.generate()` as detailed below
+* run   `gulp generate`. Details can be found [bellow](https://github.com/SmarterServices/node-force/tree/stage#generator) about what this task does.
 * run `npm install` (again as generate has modified the package.json file)
 * Run the main service in the port as hapi server
+
+To run the unit tests from your project directory open up a terminal and run the command `gulp tests`.
 
 ---
 ### Index:
@@ -79,7 +81,7 @@ var generator = new NodeForceModule.Generator(__dirname, config, null, 'v1');
 
 Workflow of the generate method is a follows:
 
-![generator-workflow](https://raw.githubusercontent.com/SmarterServices/node-force/node-force-module/resources/generator-workflow.jpg?token=AOTJCfNofFkL5UQdq5GnTMN0guPB9cdtks5Ytp0CwA%3D%3D "Generator method workflow")
+![generator-workflow](https://raw.githubusercontent.com/SmarterServices/node-force/stage/resources/generator-workflow.jpg?token=AOTJCRdUJxkHRvhpX9yrJk-DQi5gboDDks5Yhf5wwA%3D%3D "Generator method workflow")
 
 
 Running the `generate` method will create/modify the following files( **Bold files will be overridden if already exists others will be preserved if exists else they will be created**) letting that then `endpoints.json` is configured to generate endpoints for the `account` model only.

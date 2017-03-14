@@ -1,0 +1,50 @@
+{
+  "apiVersion": "v1",
+  "credentials": {
+    "valid": {
+      "database": {
+        "dialect": "postgres",
+        "databaseName": "asdfgh",
+        "userName": "qwerty",
+        "password": "abcdef1234567",
+        "schema": "salesforcedev",
+        "sortKey": "Id"
+      },
+      "salesforce": {
+        "userName": "example@domain.com",
+        "password": "abcdefghijk123456789"
+      },
+      "herokuConnect": {
+        "host": "connect-us.heroku.com",
+        "connectionId": "29f989df-124a-1244-ab24-40acb97782ed",
+        "authorization": "Bearer 29f989df-124a-1244-ab24-40acb97782ed",
+        "port": 443
+      }
+    },
+    "emptyDatabase": {
+      "database": {},
+      "salesforce": {
+        "userName": "example@domain.com",
+        "password": "abcdefghijk123456789"
+      },
+      "herokuConnect": {
+        "host": "connect-us.heroku.com",
+        "connectionId": "29f989df-124a-1244-ab24-40acb97782ed",
+        "authorization": "Bearer 29f989df-124a-1244-ab24-40acb97782ed",
+        "port": 443
+      }
+    }
+  },
+  "endpointConfig": {
+    "name": "account",
+    "modelName": "account",
+    "path": "/applications/{applicationId}/accounts",
+    "endPointTypes": [
+      "add",
+      "list",
+      "get",
+      "update",
+      "delete"
+    ]
+  }
+}

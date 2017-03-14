@@ -7,11 +7,18 @@ var gulp = require('gulp'),
   istanbul = require('gulp-istanbul'),
   jslint = require('gulp-jslint'),
   jshint = require('gulp-jshint');
-var Utils = require('./lib/helpers/utils');
+var Targz = require('targz');
+var Rimraf = require('rimraf');
+var MockRequire = require('mock-require');
+
+var JsForceMock = require('./test/mocks/jsforce');
 
 // Reference our app files for easy reference in out gulp tasks
 var paths = {
-  tests: ['./test/lib/*.js'],
+  tests: ['./test/lib/schema-generator.js',
+    './test/lib/endpoint-generator.js',
+    './test/lib/generator.js'
+    ],
   src: ['./index.js', './lib/**/*.js']
 };
 
@@ -22,18 +29,29 @@ gulp.task('default', ['jslint', 'tests', 'docs'], function (cb) {
 });
 
 gulp.task('tests', function (cb) {
+  //Use mock jsforce module instead of the original one
+  MockRequire('jsforce', JsForceMock);
+
   gulp.src(paths.src)
 
     .pipe(istanbul()) // Covering files
     .pipe(istanbul.hookRequire()) // Force `require` to return covered files
 
     .on('finish', function () {
+
+
       gulp.src(paths.tests)
         .pipe(mocha({reporter: 'spec', timeout: 5000}))
         .pipe(istanbul.writeReports()) // Creating the reports after tests run
         .on('end', function () {
-          cb().pipe(process.exit());
+
+          //Clean the temp app files
+          Rimraf('./test/temp', function () {
+            cb();
+            process.exit();
+          });
         });
+
     });
 });
 

@@ -102,10 +102,6 @@
       "version": "2.10.6"
     },
     {
-      "name": "node-fetch",
-      "version": "^1.6.3"
-    },
-    {
       "name": "vision",
       "version": "^4.1.0"
     }

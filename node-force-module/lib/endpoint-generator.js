@@ -27,7 +27,7 @@ class EndpointGenerator {
    * @param opts {Object}
    * @param opts.basePath {String}
    * @param opts.endpointConfig {Object} Configuration for endpoints
-   * @param opts.credentials {Object|string} Path or value of the credential for
+   * @param opts.credentials {Object|string} Absolute path or value of the credential for
    * heroku connect, salesForce and postgresDB
    * @param opts.version {String} Version of API default is v1
    */
@@ -89,7 +89,7 @@ class EndpointGenerator {
 
       //When path to the credential is provided instead of the credential
       if (typeof  this.credentials === 'string') {
-        tempPath = Path.resolve(this.libPath.base + '/' + this.credentials);
+        tempPath = Path.resolve(this.credentials);
 
         this.credentials = require(tempPath);
       }
