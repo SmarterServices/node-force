@@ -264,7 +264,7 @@ var sequelize = new Sequelize(dbConfig.databaseName,
     }
   });
   
-module.exports = sequelize.define('${_.lowerFirst(this.modelName)}', schema, {
+module.exports = sequelize.define('${_.toLower(this.modelName)}', schema, {
   timestamps: false,
   freezeTableName: true,
   validate: (function(){
