@@ -21,7 +21,7 @@
     "pluralize": "^3.0.0"
   },
   "devDependencies": {
-    "@ideapod/hapi-json-view": "^1.0.0",
+    "@ideapod/hapi-json-view": "git+https://github.com/SmarterServices/hapi-json-view.git",
     "chai": "^3.5.0",
     "gulp": "^3.9.1",
     "gulp-istanbul": "^1.1.1",
