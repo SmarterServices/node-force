@@ -33,9 +33,7 @@ class SchemaGenerator {
     this.displayName = displayName;
 
     //Converts 'test_file' or 'testFile' or 'test____file' to 'test-file'
-    this.fileName = _
-      .replace(_.startCase(this.displayName), ' ', '-')
-      .toLowerCase();
+    this.fileName = Utils.getFileName(this.displayName);
 
     this.herokuMapping = config.herokuMapping || {};
     this.forceObject = config.forceObject || {};
@@ -93,7 +91,7 @@ class SchemaGenerator {
 
     //Build joi schema for each key
     this.syncedForceFields.forEach(function forEachForceField(forceField) {
-      var fieldName = forceField.name,
+      var fieldName = Utils.getCleanCamelCase(forceField.name),
         fieldSchema,
         description,
         key;
@@ -103,7 +101,7 @@ class SchemaGenerator {
       if (_this.keyMapping) {
         key = _this.keyMapping[fieldName] || fieldName;
       } else {
-        key = _.camelCase(fieldName.replace(customSchemaEndPattern, ''));
+        key = Utils.getCleanCamelCase(fieldName);
       }
 
       if (fieldName === 'Id') {
@@ -147,8 +145,7 @@ ${joiProperties.join(',' + EOL)}
    * @returns {string} Mapping jason string
    */
   getMapping() {
-    var customSchemaEndPattern = new RegExp('__\\w$');
-    var mapping = {},
+    let mapping = {},
       key;
 
     if (this.keyMapping) {
@@ -156,9 +153,9 @@ ${joiProperties.join(',' + EOL)}
     }
 
     this.syncedForceFields.forEach(function forEachForceField(forceField) {
-      var fieldName = forceField.name;
+      let fieldName = Utils.getCleanCamelCase(forceField.name);
 
-      key = _.camelCase(fieldName.replace(customSchemaEndPattern, ''));
+      key = Utils.getCleanCamelCase(fieldName);
 
       mapping[fieldName] = key;
     });
@@ -180,7 +177,7 @@ ${joiProperties.join(',' + EOL)}
         .push(SchemaGenerator.getForceFieldSchema(forceField));
     });
 
-    schema += forceModels.join(', ' + Os.EOL) + '};';
+    schema += forceModels.join(', ' + Os.EOL) + Os.EOL + '};';
 
     return schema;
   }
@@ -358,7 +355,8 @@ module.exports = sequelize.define('${_.toLower(this.modelName)}', schema, {
     }
 
 
-    return `  ${fieldName}: {
+
+    return `  ${Utils.getCleanCamelCase(fieldName)}: {
     type: ${type},
     field: '${field}',
     primaryKey: ${isPrimaryKey},
