@@ -104,6 +104,14 @@
     {
       "name": "vision",
       "version": "^4.1.0"
+    },
+    {
+      "name": "mkdirp",
+      "version": "^0.5.1"
+    },
+    {
+      "name": "hapi-json-view",
+      "version": "https://github.com/SmarterServices/hapi-json-view/archive/master.tar.gz"
     }
   ]
 }
