@@ -7,14 +7,17 @@ var mapping = {};
 
 //Joi Schema provider for each model available
 var updateSchema = function () {
-  var schemaFiles = Fs.readdirSync(__dirname);
+  let schemaFiles = Fs.readdirSync(__dirname);
+  let jsFilePattern = /(.+).js/;
 
   schemaFiles.forEach(function forEachRouteFile(fileName) {
-    var fileKey = /(.+).js/.exec(fileName)[1];
+    let fileKey;
 
     //If they file is not this file
-    if (fileName === 'schema-provider.js' || (/.+\.json/.test(fileName)))
+    if (fileName === 'schema-provider.js' || !(jsFilePattern.test(fileName)))
       return;
+
+    fileKey = jsFilePattern.exec(fileName)[1];
 
     delete require.cache[require.resolve('./' + fileKey)];
     delete require.cache[require.resolve('./' + fileKey + '.json')];
