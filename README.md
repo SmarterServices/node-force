@@ -3,8 +3,11 @@ Node Force Module
 
 A node module to generate source code for `hapi.js` endpoints to run CRUD operation on dynamic `PostgreSQL` database that is synced with `salesforce`. 
 
-### Instruction to run 1st time:
-* run `npm install`
+### Installation and Code Generation:
+* Generate basic project structure using [hapihappy](https://github.com/jpiepkow/generator-hapihappy) yo-man generator.
+* Generate `auth-token` from GitHub with read access to the [node-force](https://github.com/SmarterServices/node-force) repository.
+* run `npm install --save-dev git+https://<auth-token>:x-oauth-basic@github.com/SmarterServices/node-force.git#node-force-module`
+* Create gulp task for code generate following [this](#example-generator-task) example.
 * run   `gulp generate`. Details can be found [bellow](https://github.com/SmarterServices/node-force/tree/stage#generator) about what this task does.
 * run `npm install` (again as generate has modified the package.json file)
 * Run the main service in the port as hapi server
@@ -24,6 +27,7 @@ To run the unit tests from your project directory open up a terminal and run the
 	* [SchemaGenerator](#schemagenerator)
 		* [generateSchema](#schemageneratorgenerateschema)
 * [Configuration](#custom-configuration)
+* [Example Generator Task](#example-generator-task)
 
 ----
 # Generator
@@ -461,3 +465,32 @@ The following files can be created/modified before running the code generation t
 	  "Location__Longitude__s": "locationLongitude"
 	}
 	```
+
+# Example Generator Task
+
+The following code snippet is an example gulp task to generate codes using `node-force`:
+
+```JavaScript
+gulp.task('generate', function (cb) {
+  //Create generator object with current location as root project directory
+  //Config contains all the necessary credentials
+  var trimOptions = {
+    prefix: '(SP_)?',
+    postfix: '(__c)',
+    flags: 'i',
+    groupToCapture: 2
+  };
+  var basePath = '';
+  var generator = new NodeForceModule.Generator(__dirname, Config, null, 'v1', trimOptions, basePath);
+
+  //Generate all the codes needed to get the API working
+  generator
+    .generate()
+    .then(function (data) {
+      cb();
+    })
+    .catch(function (ex) {
+      console.log(ex);
+    });
+});
+```
