@@ -331,7 +331,7 @@ module.exports = sequelize.define('${_.toLower(this.modelName)}',
     var files = [{
       path: this.libPath.schema + '/' + this.fileName + '.js',
       data: this.getJoiSchema(),
-      opts: {flag: 'w+'}
+      alternatePath: this.libPath.schema + '/existing/' + this.fileName + '.js'
     }, {
       path: this.libPath.schema + '/' + this.fileName + '.json',
       data: this.getMapping()
