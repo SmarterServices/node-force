@@ -37,14 +37,39 @@ var utils = {
   /**
    * Wrapper of fs.writeFile using promise
    * @param path {String}
-   * @param data {String|Promise} Content of file
+   * @param fileData {String|Promise} Content of file
    * or promise that resolves the content
    * @param options {Object}
    * @param rejectOnError {Boolean}
+   * @param {String} alternatePath - Path to try to write if file exists
    * @returns {Promise}
    */
-  writeFile: function (path, data, options, rejectOnError) {
+  writeFile: function (path, fileData, options, rejectOnError, alternatePath) {
+    let _this = this;
+
     return new Promise(function writeFile(resolve, reject) {
+
+      /**
+       * Callback for file write
+       * @param {Error} err
+       * @param data
+       */
+      const writeCallback = function (err, data) {
+
+        if (err && err.code === 'EEXIST' && alternatePath) {
+          //Try to write the file to alternatePath if it already exists
+          _this
+            .writeFile(alternatePath, fileData, {flag: 'w+'})
+            .then(resolve)
+            .catch(reject);
+
+        } else if (err && rejectOnError) {
+          return reject(err);
+        } else {
+          resolve(data);
+        }
+
+      };
 
       //Create the path if it doesn't already exists
       Mkdirp(Path.dirname(path), function (err) {
@@ -53,16 +78,10 @@ var utils = {
         }
 
         //Data can be also a promise that resolves the original data
-        if (data instanceof Promise) {
-          data
+        if (fileData instanceof Promise) {
+          fileData
             .then(function (data) {
-              Fs.writeFile(path, data, options, function (err, data) {
-                if (err && rejectOnError) {
-                  return reject(err);
-                }
-
-                resolve(data);
-              });
+              Fs.writeFile(path, data, options, writeCallback);
             })
             .catch(function (ex) {
               if (err && rejectOnError) {
@@ -71,13 +90,7 @@ var utils = {
             });
 
         } else {
-          Fs.writeFile(path, data, options, function (err, data) {
-            if (err && rejectOnError) {
-              return reject(err);
-            }
-
-            resolve(data);
-          });
+          Fs.writeFile(path, fileData, options, writeCallback);
         }
       });
 
@@ -117,7 +130,7 @@ var utils = {
 
   /**
    * Write multiple file at once
-   * @param fileConfigs {Array.<{path: string, data: string, opts: object | undefined, rejectOnError: boolean}>}
+   * @param fileConfigs {Array.<{path: string, data: string, opts: object | undefined, rejectOnError: boolean, alternatePath: string}>}
    * @param rejectOnError {Boolean}
    * @param defaultOption
    */
@@ -133,7 +146,8 @@ var utils = {
           .writeFile(fileConfig.path,
             fileConfig.data,
             opts,
-            fileConfig.rejectOnError));
+            fileConfig.rejectOnError,
+            fileConfig.alternatePath));
     });
 
     return new Promise(function batchWrite(resolve, reject) {
