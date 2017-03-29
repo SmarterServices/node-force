@@ -86,7 +86,7 @@ var generator = new NodeForceModule.Generator(__dirname, config, null, 'v1');
 
 Workflow of the generate method is a follows:
 
-![generator-workflow](https://raw.githubusercontent.com/SmarterServices/node-force/node-force-module/resources/generator-workflow.jpg?token=AOTJCfNUZNPKqfoHXPoV1pFrP6LaBMDiks5YLYsCwA%3D%3D "Generator method workflow")
+![generator-workflow](https://github.com/SmarterServices/node-force/wiki/images/generator-workflow.jpg "Generator method workflow")
 
 
 Running the `generate` method will create/modify the following files( **Bold files will be overridden if already exists others will be preserved if exists else they will be created**) letting that then `endpoints.json` is configured to generate endpoints for the `account` model only.
