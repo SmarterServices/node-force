@@ -100,7 +100,7 @@ var herokuConnect = {
       var limit = data.limit;
       var filter = {
         where: {
-          IsDeleted: {
+          isDeleted: {
             $ne: true
           }
         },
@@ -148,7 +148,7 @@ var herokuConnect = {
           Id: {
             $eq: data[_.lowerFirst(_.camelCase(modelName)) + 'Id']
           },
-          IsDeleted: {
+          isDeleted: {
             $ne: true
           }
         }
@@ -187,7 +187,7 @@ var herokuConnect = {
           id: {
             $eq: data[_.lowerFirst(_.camelCase(modelName)) + 'Id']
           },
-          IsDeleted: {
+          isDeleted: {
             $ne: true
           }
         }
@@ -225,7 +225,7 @@ var herokuConnect = {
           id: {
             $eq: data[_.lowerFirst(_.camelCase(modelName)) + 'Id']
           },
-          IsDeleted: {
+          isDeleted: {
             $ne: true
           }
         },
@@ -240,7 +240,7 @@ var herokuConnect = {
       model = model.schema(dbConfig.schema, {});
 
       model
-        .update({IsDeleted: true}, updateFilter)
+        .update({isDeleted: true}, updateFilter)
         .then(function onUpdate(data) {
           if (data.length === 1) {
             return resolve(data);
