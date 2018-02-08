@@ -118,7 +118,23 @@ var utils = {
           reject(ex.stack || ex);
         });
     });
-  }
+  },
+
+  /**
+   * Returns the endpoint string
+   * @param {Object} request - request object of endpoint
+   * @param {String} request.path - path string of request object
+   * @return {String} - endpoint string
+   */
+  buildEndpointString: function (request) {
+    return config.rootApplication.url + request.path;
+  },
+
+  parseUrl: url.parse.bind(url),
+  formatUrl: url.format.bind(url),
+  promisify: pify,
+  createDir: mkdirp,
+  now: moment
 };
 
 module.exports = utils;
