@@ -1,17 +1,17 @@
 'use strict';
 
-var _ = require('lodash');
-var Sequelize = require('sequelize');
-var Https = require('https');
-var SequelizeHelper = require('./../helpers/sequelize');
+const _ = require('lodash');
+const Sequelize = require('sequelize');
+const Https = require('https');
+const SequelizeHelper = require('./../helpers/sequelize');
 
-var Config = require('config');
-var sequelizeModels = SequelizeHelper.getModels();
+const Config = require('config');
+const sequelizeModels = SequelizeHelper.getModels();
 
-var dbConfig = Config.database,
+const dbConfig = Config.database,
   herokuConnectConfig = Config.herokuConnect;
 
-var sequelize = new Sequelize(dbConfig.databaseName,
+const sequelize = new Sequelize(dbConfig.databaseName,
   dbConfig.userName, dbConfig.password, {
     host: dbConfig.host,
     dialect: dbConfig.dialect,
@@ -24,7 +24,7 @@ var sequelize = new Sequelize(dbConfig.databaseName,
     }
   });
 
-var herokuConnect = {
+const herokuConnect = {
 
   getMappings: function getMapping(modelName) {
     return new Promise(function mappingPromise(resolve, reject) {
@@ -73,7 +73,7 @@ var herokuConnect = {
   //SEQUELIZE ORM Operations
   addData: function (modelName, data) {
     return new Promise(function addAccountPromise(resolve, reject) {
-      var model;
+      let model;
 
       if (!sequelizeModels.hasOwnProperty(modelName)) {
         return reject('Model not found for table, please sync with salesforce');
@@ -96,9 +96,9 @@ var herokuConnect = {
 
   listData: function list(modelName, data) {
     return new Promise(function addAccountPromise(resolve, reject) {
-      var model;
-      var limit = data.limit;
-      var filter = {
+      let model;
+      let limit = data.limit;
+      const filter = {
         where: {
           isDeleted: {
             $ne: true
@@ -126,8 +126,8 @@ var herokuConnect = {
         .findAll(filter)
         .then(function (data) {
           //prepare keyset pagination info
-          var lastData = data[data.length - 1] || {};
-          var lastEvaluatedKey = lastData[dbConfig.sortKey] || null;
+          let lastData = data[data.length - 1] || {};
+          let lastEvaluatedKey = lastData[dbConfig.sortKey] || null;
           resolve({
             limit: limit,
             lastEvaluatedKey : lastEvaluatedKey,
@@ -142,8 +142,8 @@ var herokuConnect = {
 
   getData: function get(modelName, data) {
     return new Promise(function addAccountPromise(resolve, reject) {
-      var model;
-      var updateFilter = {
+      let model;
+      const updateFilter = {
         where: {
           Id: {
             $eq: data[_.lowerFirst(_.camelCase(modelName)) + 'Id']
@@ -180,9 +180,9 @@ var herokuConnect = {
 
   updateData: function list(modelName, data) {
     return new Promise(function addAccountPromise(resolve, reject) {
-      var model;
-      var updateParams = data.payload;
-      var updateFilter = {
+      let model;
+      const updateParams = data.payload;
+      const updateFilter = {
         where: {
           id: {
             $eq: data[_.lowerFirst(_.camelCase(modelName)) + 'Id']
@@ -203,7 +203,7 @@ var herokuConnect = {
       model
         .update(updateParams, updateFilter)
         .then(function onUpdate(data) {
-          if (data.length === 1) {
+          if (data.length === 1 && data[0] > 0) {
             return resolve(data);
           }
 
@@ -242,7 +242,7 @@ var herokuConnect = {
       model
         .update({isDeleted: true}, updateFilter)
         .then(function onUpdate(data) {
-          if (data.length === 1) {
+          if (data > 0) {
             return resolve(data);
           }
 
