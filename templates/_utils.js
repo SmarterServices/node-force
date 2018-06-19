@@ -3,6 +3,8 @@ var Fs = require('fs');
 var Mkdirp = require('mkdirp');
 var Path = require('path');
 var endpointConfigurations = require('./../../config/endpoints.json');
+const JsonMapper = require('./_json-mapper');
+const templateHelpers = require('./template-helpers');
 
 var utils = {
   /**
@@ -128,6 +130,22 @@ var utils = {
    */
   buildEndpointString: function (request) {
     return config.rootApplication.url + request.path;
+  },
+
+  /**
+   * Build a json view from template and data
+   * @param {string} templatePath - The relative path of the template
+   * @param {Object} data - The data to be mapped
+   * @param {Function} reply - The hapi reply interface
+   * @return {string} - JSON string of the mapped object
+   */
+  replyJson(templatePath, data, reply) {
+    const TEMPLATE_DIR = 'templates';
+    const templateFullPath = process.cwd() + '/' + TEMPLATE_DIR + '/' + templatePath;
+    const jsonMapper = new JsonMapper(templateHelpers.partials);
+    const mapTemplate = require(templateFullPath);
+    mapTemplate(jsonMapper, data);
+    reply(JSON.stringify(jsonMapper.content)).type('application/json');
   },
 
   parseUrl: url.parse.bind(url),
