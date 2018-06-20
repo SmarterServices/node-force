@@ -97,22 +97,22 @@ const herokuConnect = {
   listData: function list(modelName, data) {
     return new Promise(function addAccountPromise(resolve, reject) {
       let model;
-      let limit = data.limit;
+      const limit = data.limit;
+      const offset = data.offset || 0;
       const filter = {
         where: {
           isDeleted: {
             $ne: true
           }
         },
-        //offset: 5,
-        limit: limit || 2147483647,
-        order: dbConfig.sortKey + ' ASC'
+        limit: limit || Number.MAX_SAFE_INTEGER,
+        offset: offset
       };
 
-      if (data.startKey) {
-        filter.where[dbConfig.sortKey] = {
-          $gt: data.startKey
-        }
+      if (data.sortKeys && data.sortKeys.length) {
+        const sortOrder = data.sortOrder || 'ASC';
+        //If data has sorting options create query
+        filter.order = data.sortKeys.map(key => [key, sortOrder]);
       }
 
       if (!sequelizeModels.hasOwnProperty(modelName)) {
@@ -123,19 +123,18 @@ const herokuConnect = {
       model = model.schema(dbConfig.schema, {});
 
       model
-        .findAll(filter)
+        .findAndCountAll(filter)
         .then(function (data) {
-          //prepare keyset pagination info
-          let lastData = data[data.length - 1] || {};
-          let lastEvaluatedKey = lastData[dbConfig.sortKey] || null;
+          const results = data.rows;
+
           resolve({
             limit: limit,
-            lastEvaluatedKey : lastEvaluatedKey,
-            results : data
+            total: data.count,
+            results: results.map(val => val.get())
           });
         })
-        .catch(function (ex) {
-          reject(ex);
+        .catch(function (error) {
+          reject(error);
         })
     });
   },
