@@ -1,10 +1,10 @@
 {
   "name": "ss-node-force",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Code generator for hapijs api for accessing data from  heroku connect database",
   "main": "index.js",
   "engines": {
-    "node": ">=4.3.1 <=6.9.1"
+    "node": ">=4.9.1 <=6.9.1"
   },
   "scripts": {
     "test": "gulp test"
