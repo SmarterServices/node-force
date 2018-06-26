@@ -1,12 +1,17 @@
 'use strict';
-var Fs = require('fs');
-var Mkdirp = require('mkdirp');
-var Path = require('path');
-var endpointConfigurations = require('./../../config/endpoints.json');
+const Fs = require('fs');
+const Mkdirp = require('mkdirp');
+const Path = require('path');
+const endpointConfigurations = require('./../../config/endpoints.json');
 const JsonMapper = require('./_json-mapper');
 const templateHelpers = require('./template-helpers');
+const config = require('config');
+const url = require('url');
+const pify = require('pify');
+const mkdirp = require('mkdirp');
+const moment = require('moment');
 
-var utils = {
+const utils = {
   /**
    * Creates a new object with the same value but keys from the mapping
    * @param obj {Object} Object to map
@@ -15,9 +20,9 @@ var utils = {
    * @returns {Object} The mapped object
    */
   getMappedObject: function (obj, mapping, reverse) {
-    var mappedObject = {};
-    var activeMapping = {};
-    var key;
+    const mappedObject = {};
+    let activeMapping = {};
+    let key;
 
     //Reverse the mapping
     if (reverse) {
@@ -76,7 +81,7 @@ var utils = {
               if (err && rejectOnError) {
                 return reject(err);
               }
-            })
+            });
 
         } else {
           Fs.writeFile(path, data, options, function (err, data) {
@@ -93,10 +98,9 @@ var utils = {
   },
 
   updateEndpointConfig: function (models) {
-    var _this = this;
+    const _this = this;
     return new Promise(function generatorPromise(resolve, reject) {
-      var endpointConfigStr,
-        tempModel;
+      let tempModel;
 
       models.forEach(function forEachModel(model) {
         tempModel = model.toLowerCase();
@@ -110,7 +114,7 @@ var utils = {
         }
       });
 
-      endpointConfigStr = JSON.stringify(endpointConfigurations, null, 2);
+      const endpointConfigStr = JSON.stringify(endpointConfigurations, null, 2);
 
       _this.writeFile(Path.resolve(__dirname + './../../config/endpoints.json'), endpointConfigStr, {flag: 'w'})
         .then(function onResolve() {
