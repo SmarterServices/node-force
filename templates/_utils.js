@@ -81,7 +81,7 @@ const utils = {
               if (err && rejectOnError) {
                 return reject(err);
               }
-            })
+            });
 
         } else {
           Fs.writeFile(path, data, options, function (err, data) {
