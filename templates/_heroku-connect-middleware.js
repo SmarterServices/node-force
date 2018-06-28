@@ -4,6 +4,7 @@ const _ = require('lodash');
 const Sequelize = require('sequelize');
 const Https = require('https');
 const SequelizeHelper = require('./../helpers/sequelize');
+const Op = Sequelize.Op;
 
 const Config = require('config');
 const sequelizeModels = SequelizeHelper.getModels();
@@ -100,13 +101,9 @@ const herokuConnect = {
       const limit = data.limit;
       const offset = data.offset || 0;
       const filter = {
-        where: {
-          isDeleted: {
-            $ne: true
-          }
-        },
         limit: limit || Number.MAX_SAFE_INTEGER,
-        offset: offset
+        offset: offset,
+        where: {}
       };
 
       if (data.sortKeys && data.sortKeys.length) {
@@ -121,6 +118,12 @@ const herokuConnect = {
 
       model = sequelizeModels[modelName];
       model = model.schema(dbConfig.schema, {});
+
+      if (model.attributes.isDeleted) {
+        _.set(filter, 'where.isDeleted', {
+          [Op.or]: [false, null]
+        });
+      }
 
       model
         .findAndCountAll(filter)
@@ -142,13 +145,10 @@ const herokuConnect = {
   getData: function get(modelName, data) {
     return new Promise(function addAccountPromise(resolve, reject) {
       let model;
-      const updateFilter = {
+      const filter = {
         where: {
-          Id: {
-            $eq: data[_.lowerFirst(_.camelCase(modelName)) + 'Id']
-          },
-          isDeleted: {
-            $ne: true
+          id: {
+            [Op.eq]: data[_.lowerFirst(_.camelCase(modelName)) + 'Id']
           }
         }
       };
@@ -160,8 +160,14 @@ const herokuConnect = {
       model = sequelizeModels[modelName];
       model = model.schema(dbConfig.schema, {});
 
+      if (model.attributes.isDeleted) {
+        _.set(filter, 'where.isDeleted', {
+          [Op.or]: [false, null]
+        });
+      }
+
       model
-        .findOne(updateFilter)
+        .findOne(filter)
         .then(function onUpdate(data) {
           if (data) {
             return resolve(data.get());
@@ -184,10 +190,7 @@ const herokuConnect = {
       const updateFilter = {
         where: {
           id: {
-            $eq: data[_.lowerFirst(_.camelCase(modelName)) + 'Id']
-          },
-          isDeleted: {
-            $ne: true
+            [Op.eq]: data[_.lowerFirst(_.camelCase(modelName)) + 'Id']
           }
         }
       };
@@ -198,6 +201,12 @@ const herokuConnect = {
 
       model = sequelizeModels[modelName];
       model = model.schema(dbConfig.schema, {});
+
+      if (model.attributes.isDeleted) {
+        _.set(updateFilter, 'where.isDeleted', {
+          [Op.or]: [false, null]
+        });
+      }
 
       model
         .update(updateParams, updateFilter)
@@ -222,10 +231,7 @@ const herokuConnect = {
       var updateFilter = {
         where: {
           id: {
-            $eq: data[_.lowerFirst(_.camelCase(modelName)) + 'Id']
-          },
-          isDeleted: {
-            $ne: true
+            [Op.eq]: data[_.lowerFirst(_.camelCase(modelName)) + 'Id']
           }
         },
         validate: true
@@ -237,6 +243,12 @@ const herokuConnect = {
 
       model = sequelizeModels[modelName];
       model = model.schema(dbConfig.schema, {});
+
+      if (model.attributes.isDeleted) {
+        _.set(filter, 'where.isDeleted', {
+          [Op.or]: [false, null]
+        });
+      }
 
       model
         .update({isDeleted: true}, updateFilter)
