@@ -29,8 +29,8 @@ const herokuConnect = {
 
   getMappings: function getMapping(modelName) {
     return new Promise(function mappingPromise(resolve, reject) {
-      var connectionId = herokuConnectConfig.connectionId;
-      var options = {
+      const connectionId = herokuConnectConfig.connectionId;
+      const options = {
         hostname: herokuConnectConfig.host,
         port: herokuConnectConfig.port,
         path: '/api/v3/connections/' + connectionId + '?deep=true',
@@ -40,16 +40,16 @@ const herokuConnect = {
         }
       };
 
-      var req = Https.request(options, function (res) {
-        var data = '';
+      const req = Https.request(options, function (res) {
+        let data = '';
 
         res.on('data', function (d) {
           data += d;
         });
 
         res.on('end', function () {
-          var mappings = JSON.parse(data).mappings;
-          var map;
+          const mappings = JSON.parse(data).mappings;
+          let map;
           if (!modelName) {
             return resolve(mappings);
           }
@@ -91,7 +91,7 @@ const herokuConnect = {
         })
         .catch(function (ex) {
           reject(ex.message);
-        })
+        });
     });
   },
 
@@ -143,7 +143,7 @@ const herokuConnect = {
         })
         .catch(function (error) {
           reject(error);
-        })
+        });
     });
   },
 
@@ -242,8 +242,8 @@ const herokuConnect = {
 
   deleteData: function remove(modelName, data, queryOptions) {
     return new Promise(function deleteAccountPromise(resolve, reject) {
-      var model;
-      var updateFilter = {
+      let model;
+      const updateFilter = {
         where: {
           id: {
             [Op.eq]: data[_.lowerFirst(_.camelCase(modelName)) + 'Id']
@@ -265,7 +265,7 @@ const herokuConnect = {
       model = model.schema(dbConfig.schema, {});
 
       if (model.attributes.isDeleted) {
-        _.set(filter, 'where.isDeleted', {
+        _.set(updateFilter, 'where.isDeleted', {
           [Op.or]: [false, null]
         });
       }
