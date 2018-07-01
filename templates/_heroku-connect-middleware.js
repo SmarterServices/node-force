@@ -95,7 +95,7 @@ const herokuConnect = {
     });
   },
 
-  listData: function list(modelName, data) {
+  listData: function list(modelName, data, queryOptions) {
     return new Promise(function addAccountPromise(resolve, reject) {
       let model;
       const limit = data.limit;
@@ -110,6 +110,11 @@ const herokuConnect = {
         const sortOrder = data.sortOrder || 'ASC';
         //If data has sorting options create query
         filter.order = data.sortKeys.map(key => [key, sortOrder]);
+      }
+
+      if (queryOptions) {
+        // if custom query is provided
+        mergeQueryWithSymbol(filter.where, queryOptions.where);
       }
 
       if (!sequelizeModels.hasOwnProperty(modelName)) {
@@ -142,7 +147,7 @@ const herokuConnect = {
     });
   },
 
-  getData: function get(modelName, data) {
+  getData: function get(modelName, data, queryOptions) {
     return new Promise(function addAccountPromise(resolve, reject) {
       let model;
       const filter = {
@@ -152,6 +157,11 @@ const herokuConnect = {
           }
         }
       };
+
+      if (queryOptions) {
+        // if custom query is provided
+        mergeQueryWithSymbol(filter.where, queryOptions.where);
+      }
 
       if (!sequelizeModels.hasOwnProperty(modelName)) {
         return reject('Model not found for table, please sync with salesforce');
@@ -183,7 +193,7 @@ const herokuConnect = {
     });
   },
 
-  updateData: function list(modelName, data) {
+  updateData: function list(modelName, data, queryOptions) {
     return new Promise(function addAccountPromise(resolve, reject) {
       let model;
       const updateParams = data.payload;
@@ -194,6 +204,11 @@ const herokuConnect = {
           }
         }
       };
+
+      if (queryOptions) {
+        // if custom query is provided
+        mergeQueryWithSymbol(updateFilter.where, queryOptions.where);
+      }
 
       if (!sequelizeModels.hasOwnProperty(modelName)) {
         return reject('Model not found for table, please sync with salesforce');
@@ -225,7 +240,7 @@ const herokuConnect = {
     });
   },
 
-  deleteData: function remove(modelName, data) {
+  deleteData: function remove(modelName, data, queryOptions) {
     return new Promise(function deleteAccountPromise(resolve, reject) {
       var model;
       var updateFilter = {
@@ -236,6 +251,11 @@ const herokuConnect = {
         },
         validate: true
       };
+
+      if (queryOptions) {
+        // if custom query is provided
+        mergeQueryWithSymbol(updateFilter.where, queryOptions.where);
+      }
 
       if (!sequelizeModels.hasOwnProperty(modelName)) {
         return reject('Model not found for table, please sync with salesforce');
@@ -270,4 +290,49 @@ const herokuConnect = {
 };
 
 module.exports = herokuConnect;
+
+/**
+ * Merges additionalQuery into query with Symbol
+ * @param {Object} whereQuery - The 'where' query where the value will be set
+ * @param {Object} additionalQuery - Extra query to merge
+ */
+function mergeQueryWithSymbol(whereQuery, additionalQuery) {
+
+  if (!additionalQuery) {
+    return;
+  }
+
+  //set Symbol if the top layer has it
+  setSymbol(whereQuery, additionalQuery);
+
+  //merge every field`
+  _.merge(whereQuery, additionalQuery);
+
+  //iterate through the fiels and merge the Symbols as lodash.merge doesn't merge Symbol
+  Object.keys(additionalQuery).map((fieldName) => {
+    const queryField = additionalQuery[fieldName];
+    setSymbol(whereQuery, queryField, fieldName);
+  });
+}
+
+/**
+ * Sets Symbol with value on the whereQuery from the queryField
+ * @param {Object} queryField - The queryField that has Symbol as key and option as value
+ * @param {Object} whereQuery - The query where it needs to be merged
+ * @param {string} [fieldName] - Name of the field for the Symbol
+ */
+function setSymbol(whereQuery, queryField, fieldName) {
+  if (!queryField) {
+    return;
+  }
+  Object.getOwnPropertySymbols(queryField).map((itemSymbol)=> {
+    if (fieldName) {
+      whereQuery[fieldName][itemSymbol] = queryField[itemSymbol];
+    } else {
+      whereQuery[itemSymbol] = queryField[itemSymbol];
+    }
+
+  });
+}
+
 
