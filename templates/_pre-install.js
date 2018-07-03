@@ -21,7 +21,7 @@ if (isLinux) {
    } else {
     shelljs.exec('npm install pg@6.1.0');
     shelljs.exec('npm install pg-native@1.10.0');
-    shelljs.exec('npm install sequelize@3.24.6');
+    shelljs.exec('npm install sequelize@4.37.8');
    }*/
   //For UBUNTU
   if (shelljs.exec('sudo apt-get install libpq-dev').code !== 0) {
@@ -30,7 +30,7 @@ if (isLinux) {
   } else {
     shelljs.exec('npm install pg@6.1.0');
     shelljs.exec('npm install pg-native@1.10.0');
-    shelljs.exec('npm install sequelize@3.24.6');
+    shelljs.exec('npm install sequelize@4.37.8');
   }
 } else if (isMac) {
   if (shelljs.exec('brew install postgres').code !== 0) {
@@ -39,14 +39,14 @@ if (isLinux) {
   } else {
     shelljs.exec('npm install pg@6.1.0');
     shelljs.exec('npm install pg-native@1.10.0');
-    shelljs.exec('npm install sequelize@3.24.6');
+    shelljs.exec('npm install sequelize@4.37.8');
   }
 } else {
   //for other os, no support right now
   console.log('for current os, no support right now! Error for postgres db may occur. Please install postgres db manually if error occurs!');
   shelljs.exec('npm install pg@6.1.0');
   shelljs.exec('npm install pg-native@1.10.0');
-  shelljs.exec('npm install sequelize@3.24.6');
+  shelljs.exec('npm install sequelize@4.37.8');
 }`;
 
 module.exports = file_content;
