@@ -62,8 +62,8 @@
   },
   "modules": [
     {
-      "name": "@ideapod/hapi-json-view",
-      "version": "^1.0.0"
+      "name": "sequelize",
+      "version": "^4.37.8"
     },
     {
       "name": "boom",
