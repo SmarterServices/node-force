@@ -26,7 +26,11 @@ const sequelize = new Sequelize(dbConfig.databaseName,
   });
 
 const herokuConnect = {
-
+  /**
+   * Get mappings for a model
+   * @param {string} modelName - Required model name for mappings
+   * @returns {Promise} - Resolves required mappings
+   */
   getMappings: function getMapping(modelName) {
     return new Promise(function mappingPromise(resolve, reject) {
       const connectionId = herokuConnectConfig.connectionId;
@@ -71,7 +75,12 @@ const herokuConnect = {
     });
   },
 
-  //SEQUELIZE ORM Operations
+  /**
+   * Adds data to database
+   * @param {string} modelName - Required model name for mappings
+   * @param {Object} data - Data for adding
+   * @returns {Promise} - Resolves added data
+   */
   addData: function (modelName, data) {
     return new Promise(function addAccountPromise(resolve, reject) {
       let model;
@@ -95,6 +104,13 @@ const herokuConnect = {
     });
   },
 
+  /**
+   * Lists data from database
+   * @param {string} modelName - Required model name for mappings
+   * @param {Object} data - Data for adding
+   * @param {Object} query - Query sent with the request
+   * @returns {Promise} - Resolves added data
+   */
   listData: function list(modelName, data, queryOptions) {
     return new Promise(function addAccountPromise(resolve, reject) {
       let model;
@@ -147,6 +163,14 @@ const herokuConnect = {
     });
   },
 
+  /**
+   * Gets a row from database for specific model
+   * @param {string} modelName - Name of the model
+   * @param {{sid: string}} data - Query data
+   * @param {Object} [queryOptions={}] - Sequelize query options for findOne
+   * @returns {Promise} - Resolves result data
+   * @rejects {Error}
+   */
   getData: function get(modelName, data, queryOptions) {
     return new Promise(function addAccountPromise(resolve, reject) {
       let model;
@@ -193,6 +217,14 @@ const herokuConnect = {
     });
   },
 
+  /**
+   * Updates rows in database for specific model
+   * @param {string} modelName - Name of the model
+   * @param {{sid: string}} data - Query data
+   * @param {Object} [queryOptions] - Sequelize query options for update
+   * @returns {Promise} - Resolves number of rows affected
+   * @rejects {Error}
+   */
   updateData: function list(modelName, data, queryOptions) {
     return new Promise(function addAccountPromise(resolve, reject) {
       let model;
@@ -239,7 +271,14 @@ const herokuConnect = {
 
     });
   },
-
+  /**
+   * Deletes rows in database for specific model
+   * @param {string} modelName - Name of the model
+   * @param {{sid: string}} data - Query data
+   * @param {Object} [queryOptions] - Sequelize query options for update
+   * @returns {Promise} - Resolves number of rows affected
+   * @rejects {Error}
+   */
   deleteData: function remove(modelName, data, queryOptions) {
     return new Promise(function deleteAccountPromise(resolve, reject) {
       let model;
