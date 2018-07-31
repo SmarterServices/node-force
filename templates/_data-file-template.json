@@ -2,6 +2,19 @@
   "post": {
     "payload": {
       "valid": {
+      },
+      "invalid": {
+
+      }
+    }
+  },
+  "put": {
+    "payload": {
+      "valid": {
+
+      },
+      "invalid": {
+
       }
     }
   }
