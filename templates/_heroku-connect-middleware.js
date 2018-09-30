@@ -4,6 +4,7 @@ const _ = require('lodash');
 const Sequelize = require('sequelize');
 const Https = require('https');
 const SequelizeHelper = require('./../helpers/sequelize');
+const Op = Sequelize.Op;
 
 const Config = require('config');
 const sequelizeModels = SequelizeHelper.getModels();
@@ -25,11 +26,15 @@ const sequelize = new Sequelize(dbConfig.databaseName,
   });
 
 const herokuConnect = {
-
+  /**
+   * Get mappings for a model
+   * @param {string} modelName - Required model name for mappings
+   * @returns {Promise} - Resolves required mappings
+   */
   getMappings: function getMapping(modelName) {
     return new Promise(function mappingPromise(resolve, reject) {
-      var connectionId = herokuConnectConfig.connectionId;
-      var options = {
+      const connectionId = herokuConnectConfig.connectionId;
+      const options = {
         hostname: herokuConnectConfig.host,
         port: herokuConnectConfig.port,
         path: '/api/v3/connections/' + connectionId + '?deep=true',
@@ -39,16 +44,16 @@ const herokuConnect = {
         }
       };
 
-      var req = Https.request(options, function (res) {
-        var data = '';
+      const req = Https.request(options, function (res) {
+        let data = '';
 
         res.on('data', function (d) {
           data += d;
         });
 
         res.on('end', function () {
-          var mappings = JSON.parse(data).mappings;
-          var map;
+          const mappings = JSON.parse(data).mappings;
+          let map;
           if (!modelName) {
             return resolve(mappings);
           }
@@ -70,7 +75,12 @@ const herokuConnect = {
     });
   },
 
-  //SEQUELIZE ORM Operations
+  /**
+   * Adds data to database
+   * @param {string} modelName - Required model name for mappings
+   * @param {Object} data - Data for adding
+   * @returns {Promise} - Resolves added data
+   */
   addData: function (modelName, data) {
     return new Promise(function addAccountPromise(resolve, reject) {
       let model;
@@ -90,23 +100,26 @@ const herokuConnect = {
         })
         .catch(function (ex) {
           reject(ex.message);
-        })
+        });
     });
   },
 
-  listData: function list(modelName, data) {
+  /**
+   * Lists data from database
+   * @param {string} modelName - Required model name for mappings
+   * @param {Object} data - Data for adding
+   * @param {Object} query - Query sent with the request
+   * @returns {Promise} - Resolves added data
+   */
+  listData: function list(modelName, data, queryOptions) {
     return new Promise(function addAccountPromise(resolve, reject) {
       let model;
       const limit = data.limit;
       const offset = data.offset || 0;
       const filter = {
-        where: {
-          isDeleted: {
-            $ne: true
-          }
-        },
         limit: limit || Number.MAX_SAFE_INTEGER,
-        offset: offset
+        offset: offset,
+        where: {}
       };
 
       if (data.sortKeys && data.sortKeys.length) {
@@ -115,12 +128,23 @@ const herokuConnect = {
         filter.order = data.sortKeys.map(key => [key, sortOrder]);
       }
 
+      if (queryOptions) {
+        // if custom query is provided
+        mergeQueryWithSymbol(filter.where, queryOptions.where);
+      }
+
       if (!sequelizeModels.hasOwnProperty(modelName)) {
         return reject('Model not found for table, please sync with salesforce');
       }
 
       model = sequelizeModels[modelName];
       model = model.schema(dbConfig.schema, {});
+
+      if (model.attributes.isDeleted) {
+        _.set(filter, 'where.isDeleted', {
+          [Op.or]: [false, null]
+        });
+      }
 
       model
         .findAndCountAll(filter)
@@ -135,23 +159,33 @@ const herokuConnect = {
         })
         .catch(function (error) {
           reject(error);
-        })
+        });
     });
   },
 
-  getData: function get(modelName, data) {
+  /**
+   * Gets a row from database for specific model
+   * @param {string} modelName - Name of the model
+   * @param {{sid: string}} data - Query data
+   * @param {Object} [queryOptions={}] - Sequelize query options for findOne
+   * @returns {Promise} - Resolves result data
+   * @rejects {Error}
+   */
+  getData: function get(modelName, data, queryOptions) {
     return new Promise(function addAccountPromise(resolve, reject) {
       let model;
-      const updateFilter = {
+      const filter = {
         where: {
-          Id: {
-            $eq: data[_.lowerFirst(_.camelCase(modelName)) + 'Id']
-          },
-          isDeleted: {
-            $ne: true
+          id: {
+            [Op.eq]: data[_.lowerFirst(_.camelCase(modelName)) + 'Id']
           }
         }
       };
+
+      if (queryOptions) {
+        // if custom query is provided
+        mergeQueryWithSymbol(filter.where, queryOptions.where);
+      }
 
       if (!sequelizeModels.hasOwnProperty(modelName)) {
         return reject('Model not found for table, please sync with salesforce');
@@ -160,8 +194,14 @@ const herokuConnect = {
       model = sequelizeModels[modelName];
       model = model.schema(dbConfig.schema, {});
 
+      if (model.attributes.isDeleted) {
+        _.set(filter, 'where.isDeleted', {
+          [Op.or]: [false, null]
+        });
+      }
+
       model
-        .findOne(updateFilter)
+        .findOne(filter)
         .then(function onUpdate(data) {
           if (data) {
             return resolve(data.get());
@@ -177,20 +217,30 @@ const herokuConnect = {
     });
   },
 
-  updateData: function list(modelName, data) {
+  /**
+   * Updates rows in database for specific model
+   * @param {string} modelName - Name of the model
+   * @param {{sid: string}} data - Query data
+   * @param {Object} [queryOptions] - Sequelize query options for update
+   * @returns {Promise} - Resolves number of rows affected
+   * @rejects {Error}
+   */
+  updateData: function list(modelName, data, queryOptions) {
     return new Promise(function addAccountPromise(resolve, reject) {
       let model;
       const updateParams = data.payload;
       const updateFilter = {
         where: {
           id: {
-            $eq: data[_.lowerFirst(_.camelCase(modelName)) + 'Id']
-          },
-          isDeleted: {
-            $ne: true
+            [Op.eq]: data[_.lowerFirst(_.camelCase(modelName)) + 'Id']
           }
         }
       };
+
+      if (queryOptions) {
+        // if custom query is provided
+        mergeQueryWithSymbol(updateFilter.where, queryOptions.where);
+      }
 
       if (!sequelizeModels.hasOwnProperty(modelName)) {
         return reject('Model not found for table, please sync with salesforce');
@@ -198,6 +248,12 @@ const herokuConnect = {
 
       model = sequelizeModels[modelName];
       model = model.schema(dbConfig.schema, {});
+
+      if (model.attributes.isDeleted) {
+        _.set(updateFilter, 'where.isDeleted', {
+          [Op.or]: [false, null]
+        });
+      }
 
       model
         .update(updateParams, updateFilter)
@@ -215,21 +271,30 @@ const herokuConnect = {
 
     });
   },
-
-  deleteData: function remove(modelName, data) {
+  /**
+   * Deletes rows in database for specific model
+   * @param {string} modelName - Name of the model
+   * @param {{sid: string}} data - Query data
+   * @param {Object} [queryOptions] - Sequelize query options for update
+   * @returns {Promise} - Resolves number of rows affected
+   * @rejects {Error}
+   */
+  deleteData: function remove(modelName, data, queryOptions) {
     return new Promise(function deleteAccountPromise(resolve, reject) {
-      var model;
-      var updateFilter = {
+      let model;
+      const updateFilter = {
         where: {
           id: {
-            $eq: data[_.lowerFirst(_.camelCase(modelName)) + 'Id']
-          },
-          isDeleted: {
-            $ne: true
+            [Op.eq]: data[_.lowerFirst(_.camelCase(modelName)) + 'Id']
           }
         },
         validate: true
       };
+
+      if (queryOptions) {
+        // if custom query is provided
+        mergeQueryWithSymbol(updateFilter.where, queryOptions.where);
+      }
 
       if (!sequelizeModels.hasOwnProperty(modelName)) {
         return reject('Model not found for table, please sync with salesforce');
@@ -237,6 +302,12 @@ const herokuConnect = {
 
       model = sequelizeModels[modelName];
       model = model.schema(dbConfig.schema, {});
+
+      if (model.attributes.isDeleted) {
+        _.set(updateFilter, 'where.isDeleted', {
+          [Op.or]: [false, null]
+        });
+      }
 
       model
         .update({isDeleted: true}, updateFilter)
@@ -258,4 +329,49 @@ const herokuConnect = {
 };
 
 module.exports = herokuConnect;
+
+/**
+ * Merges additionalQuery into query with Symbol
+ * @param {Object} whereQuery - The 'where' query where the value will be set
+ * @param {Object} additionalQuery - Extra query to merge
+ */
+function mergeQueryWithSymbol(whereQuery, additionalQuery) {
+
+  if (!additionalQuery) {
+    return;
+  }
+
+  //set Symbol if the top layer has it
+  setSymbol(whereQuery, additionalQuery);
+
+  //merge every field`
+  _.merge(whereQuery, additionalQuery);
+
+  //iterate through the fiels and merge the Symbols as lodash.merge doesn't merge Symbol
+  Object.keys(additionalQuery).map((fieldName) => {
+    const queryField = additionalQuery[fieldName];
+    setSymbol(whereQuery, queryField, fieldName);
+  });
+}
+
+/**
+ * Sets Symbol with value on the whereQuery from the queryField
+ * @param {Object} queryField - The queryField that has Symbol as key and option as value
+ * @param {Object} whereQuery - The query where it needs to be merged
+ * @param {string} [fieldName] - Name of the field for the Symbol
+ */
+function setSymbol(whereQuery, queryField, fieldName) {
+  if (!queryField) {
+    return;
+  }
+  Object.getOwnPropertySymbols(queryField).map((itemSymbol)=> {
+    if (fieldName) {
+      whereQuery[fieldName][itemSymbol] = queryField[itemSymbol];
+    } else {
+      whereQuery[itemSymbol] = queryField[itemSymbol];
+    }
+
+  });
+}
+
 
