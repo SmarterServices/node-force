@@ -1,10 +1,10 @@
 {
   "name": "ss-node-force",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Code generator for hapijs api for accessing data from  heroku connect database",
   "main": "index.js",
   "engines": {
-    "node": ">=4.3.1 <=6.9.1"
+    "node": ">=4.9.1 <=6.9.1"
   },
   "scripts": {
     "test": "gulp test"
@@ -21,7 +21,6 @@
     "pluralize": "^3.0.0"
   },
   "devDependencies": {
-    "@ideapod/hapi-json-view": "^1.0.0",
     "chai": "^3.5.0",
     "gulp": "^3.9.1",
     "gulp-istanbul": "^1.1.1",
@@ -37,7 +36,7 @@
     "pg": "^6.1.0",
     "pg-native": "^1.10.0",
     "rimraf": "^2.5.4",
-    "sequelize": "^3.25.0",
+    "sequelize": "^4.37.8",
     "supertest": "^2.0.1",
     "targz": "^1.0.1",
     "vision": "^4.1.0",
